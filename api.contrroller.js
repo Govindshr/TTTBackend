@@ -564,13 +564,13 @@ exports.saveItinerary = async (req, res) => {
         let current_price = parseFloat(data.current_price) || 0;
         let original_price = parseFloat(data.original_price) || 0;
         let saving = parseFloat(data.saving) || 0;
-        let trip_highlights = data.trip_highlights || "";
+        let trip_highlights = data.trip_highlights  ? JSON.parse(data.trip_highlights) : [];
         let prerequisites_knowledge = data.prerequisites_knowledge || "";
         let additional_information = data.additional_information || "";
         let day_wise_itinerary = data.day_wise_itinerary ? JSON.parse(data.day_wise_itinerary) : [];
         let status = data.status || "inactive"; // Default status
-        let inclusions = data.inclusions || "";
-        let exclusions = data.exclusions || "";
+        let inclusions = data.inclusions  ? JSON.parse(data.inclusions) : [];
+        let exclusions = data.exclusions  ? JSON.parse(data.exclusions) : [];
         let faqs = data.faqs ? JSON.parse(data.faqs) : [];
 
         // Handle file uploads

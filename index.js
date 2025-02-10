@@ -33,11 +33,12 @@ app.use(cors());
 // Body parser middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
+// Serve 'uploads' directory
 
 app.get('/', (req, res) => {
     res.send("Home Page Of KMS");
 })
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.listen((2001), () => {
     console.log("app is running on port 2001")

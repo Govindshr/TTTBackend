@@ -86,13 +86,13 @@ const ItinerarySchema = new mongoose.Schema(
         original_price: { type: Number, required: true },
         saving: { type: Number, default: 0 },
         images: { type: [String], default: [] },
-        trip_highlights: { type: String, default: "" },
+        trip_highlights: [],
         prerequisites_knowledge: { type: String, default: "" },
         additional_information: { type: String, default: "" },
         day_wise_itinerary: [],
         status: { type: String, enum: ["active", "inactive"], default: "inactive" },
-        inclusions: { type: String, default: "" },
-        exclusions: { type: String, default: "" },
+        inclusions: [],
+        exclusions: [],
         faqs: [
             // {
             //     question: { type: String, required: true },
