@@ -35,31 +35,31 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-// app.get('/', (req, res) => {
-//     res.send("Home Page Of KMS");
-// })
-
-// app.listen((2222), () => {
-//     console.log("app is running on port 2222")
-// })
-
-let server;
-const options = {
-    key: fs.readFileSync(path.join(`./SSL/kms.qdegrees.pem`)),//ssl.key
-    
-    cert: fs.readFileSync(path.join(`./SSL/kms.qdegrees.crt`))  //ssl.cert
-    };
-    console.log(options);
-
-    server = https.createServer(options, app);
-
 app.get('/', (req, res) => {
     res.send("Home Page Of KMS");
 })
 
-server.listen((3006), () => {
-    console.info(`Express server listening on PORT: 3006`)
-});
+app.listen((2001), () => {
+    console.log("app is running on port 2001")
+})
+
+// let server;
+// const options = {
+//     key: fs.readFileSync(path.join(`./SSL/kms.qdegrees.pem`)),//ssl.key
+    
+//     cert: fs.readFileSync(path.join(`./SSL/kms.qdegrees.crt`))  //ssl.cert
+//     };
+//     console.log(options);
+
+//     server = https.createServer(options, app);
+
+// app.get('/', (req, res) => {
+//     res.send("Home Page Of KMS");
+// })
+
+// server.listen((3006), () => {
+//     console.info(`Express server listening on PORT: 3006`)
+// });
 
 //====================================== Function For handler.upload Image ===============================================//
 
@@ -80,13 +80,11 @@ app.post("/uploadDocuments", handler.upload, controller.uploadDocuments)
 app.get('/file/:path', controller.file)
 
 /************************ Registration API for Users in KMS ******************* */
-app.post("/registration", handler.upload, controller.Registration)
+// app.post("/registration", handler.upload, controller.Registration)
 
 /************************ Login API for Users in KMS ******************* */
 app.post("/login", handler.upload, controller.login)
 
-/************************ Save Scenario of KMS ******************* */
-app.post('/saveScenario', handler.verifyToken, controller.saveScenario)
 
 /************************ Save Question and Options of KMS ******************* */
 app.post("/saveQuestion", handler.verifyToken, controller.saveQuestion)
@@ -94,80 +92,102 @@ app.post("/saveQuestion", handler.verifyToken, controller.saveQuestion)
 /************************ Get Question By Next and Pre Action Id Id of KMS ******************* */
 app.post('/getQuestionById', handler.verifyToken, controller.getQuestionById)
 
-/************************ Get Question by Scenerio Action Id of KMS ******************* */
-app.post('/getQuestionByScenerio', handler.verifyToken, controller.getQuestionByScenerio)
 
-/************************ Get All Questions and Options of KMS ******************* */
-app.get('/getQuestion', handler.verifyToken, controller.getQuestion)
-
-/************************ Get All Scenerio Categories Action Id of KMS ******************* */
-app.get('/getscenario', handler.verifyToken, controller.getscenario)
-
-/************************ Get All Expired Scenerio Categories Action Id of KMS ******************* */
-app.get('/getExpiredScenario', controller.getExpiredScenario)
-
-/************************ Get Items of Scenerio Action Id of KMS ********************** */
-app.post('/getItemsScenerio', handler.verifyToken, controller.getItemsScenerio)
-
-/************************ Edit Questions and Options of KMS ******************* */
-app.post('/updateQuestion', handler.verifyToken, controller.updateQuestion)
-
-/************************ Get Scenerio Details by Scenario Id of KMS ******************* */
-app.post('/getscenarioDetails', handler.verifyToken, controller.getscenarioDetails)
-
-/************************ Get Scenerio Details by Scenario Id of KMS ******************* */
-app.post("/sceneraioDetails", handler.verifyToken, controller.sceneraioDetails)
-
-/************************ Increase Count by Scenario Id of KMS ******************* */
-app.post("/updateSceneraioCount", handler.verifyToken, controller.updateSceneraioCount)
-
-/************************ Get Users based on user role of KMS ********************** */
-app.post('/getUsersBasedOnUserRole', handler.verifyToken, controller.getUsersBasedOnUserRole)
-
-/************************ Get Users based on Admin Id of KMS ********************** */
-app.post('/getAgentBasedOnAdminId', handler.verifyToken, controller.getAgentBasedOnAdminId)
-
-/************************ Get All Ranking wise Scenerio of KMS ******************* */
-app.get('/getscenarioRankingWise', handler.verifyToken, controller.getscenarioRankingWise)
-
-/************************ Get most view Scenerio Details Id of KMS ******************* */
-app.get("/getMostViewSceneraioDetails", controller.getMostViewSceneraioDetails)
-
-/************************ update User And Scenario For Time Spent ******************* */
-app.post("/updateUserAndScenarioForTimeSpent", controller.updateUserAndScenarioForTimeSpent)
-
-/************************ Get Users details with time spent of KMS ********************** */
-app.post('/getUsersDetailsWithTimespent', handler.verifyToken, controller.getUsersDetailsWithTimespent)
-
-/************************ Get scenario details with time spent of KMS ********************** */
-app.post('/getScenarioDetailsWithTimespent', handler.verifyToken, controller.getScenarioDetailsWithTimespent)
-
-/************************ Get Scenerio Details based on Category and AdminId of KMS ******************* */
-app.post("/getScenarioBasedOnCatnAdm", handler.verifyToken, controller.getScenarioBasedOnCatnAdm)
-
-
-/************************ Save Logs of KMS ******************* */
-app.post('/logs', handler.verifyToken, controller.logs)
-
-/************************ update Logs of KMS ******************* */
-app.post("/updateLogs", handler.verifyToken, controller.updateLogs)
-
-/************************ update Logs of KMS ******************* */
-app.post("/getAgentDetailsBasedOnAgentId", controller.getAgentDetailsBasedOnAgentId)
-
-/************************ update Logs of KMS ******************* */
-app.post("/getAgentDetailsOfAdmin", controller.getAgentDetailsOfAdmin)
-
-/************************ update Logs of KMS ******************* */
-app.post("/getAgentLogsDetails", controller.getAgentLogsDetails)
-
-
-app.post("/getAllQuestionBasedOnScenarioId", controller.getAllQuestionBasedOnScenarioId)
 
 app.get("/getSchenarioImageType", controller.getSchenarioImageType)
 
 /************************ Delete Qestions and Options bye Scene Id of KMS ******************* */
 // app.post('/deleteSceine', controller.deleteSceine)
+
+
+app.post("/Registration", controller.Registration);
+app.post("/UpdateUser", handler.upload, controller.UpdateUser);
+app.post("/GetAllUsers", controller.GetAllUsers);
+app.post("/GetUserById", controller.GetUserById);
+app.post("/DeleteUser", controller.DeleteUser);
+
+
+// Destination
+app.post("/saveDestination", handler.upload, controller.saveDestination);
+app.post("/editDestination", handler.upload, controller.editDestination);
+app.post("/deleteDestination", controller.deleteDestination);
+app.post("/viewDestinationById", controller.viewDestinationById);
+app.post("/getAllDestinations", controller.getAllDestinations);
+app.post("/updateDestinationStatus", controller.updateDestinationStatus);
+app.post("/getDestinationsNamesAndIds", controller.getDestinationsNamesAndIds);
+
+// Itinerary
+app.post("/saveItinerary", handler.upload, controller.saveItinerary);
+app.post("/editItinerary", handler.upload, controller.editItinerary);
+app.post("/deleteItinerary", controller.deleteItinerary);
+app.post("/getItineraryById", controller.getItineraryById);
+app.post("/getItinerariesByDestination", controller.getItinerariesByDestination);
+app.post("/updateItineraryStatus", controller.updateItineraryStatus);
+app.post("/getItineraryNamesByDestination", controller.getItineraryNamesByDestination);
+
+// Destination with Type
+app.post("/saveDestinationWithType", controller.saveDestinationWithType);
+app.post("/getDestinationWithType", controller.getDestinationWithType);
+
+// Itinerary with Type
+app.post("/saveItinerariesWithType", controller.saveItinerariesWithType);
+app.post("/getItinerariesWithType", controller.getItinerariesWithType);
+
+// Holiday Theme
+app.post("/saveHolidayTheme", handler.upload, controller.saveHolidayTheme);
+app.post("/updateHolidayTheme", handler.upload, controller.updateHolidayTheme);
+app.post("/getHolidayThemeById", controller.getHolidayThemeById);
+app.post("/softDeleteHolidayTheme", controller.softDeleteHolidayTheme);
+app.post("/hardDeleteHolidayTheme", controller.hardDeleteHolidayTheme);
+app.post("/getAllHolidayThemes", controller.getAllHolidayThemes);
+app.post("/updateHolidayThemeStatus", controller.updateHolidayThemeStatus);
+
+// Testimonial
+app.post("/saveTestimonial", handler.upload, controller.saveTestimonial);
+app.post("/updateTestimonial", handler.upload, controller.updateTestimonial);
+app.post("/getAllTestimonials", controller.getAllTestimonials);
+app.post("/getTestimonialById", controller.getTestimonialById);
+app.post("/updateTestimonialStatus", controller.updateTestimonialStatus);
+app.post("/updateTestimonialStatus", controller.updateTestimonialStatus);
+
+// Partner
+app.post("/addPartner", handler.upload, controller.addPartner);
+app.post("/updatePartner", handler.upload, controller.updatePartner);
+app.post("/updatePartner", handler.upload, controller.updatePartner);
+app.post("/deletePartner", controller.deletePartner);
+app.post("/getAllPartners", controller.getAllPartners);
+app.post("/updatePartnerStatus", controller.updatePartnerStatus);
+app.post("/getPartnerById", controller.getPartnerById);
+
+// Vendor
+app.post("/saveVendor", handler.upload, controller.saveVendor);
+app.post("/updateVendor", handler.upload, controller.updateVendor);
+app.post("/getAllVendors", controller.getAllVendors);
+app.post("/getVendorById", controller.getVendorById);
+app.post("/deleteVendor", controller.deleteVendor);
+app.post("/updateVendorStatus", controller.updateVendorStatus);
+
+// Lead
+app.post("/createLead", controller.createLead);
+app.post("/updateLead", handler.upload, controller.updateLead);
+app.post("/getAllLeads", controller.getAllLeads);
+app.post("/getLeadsByType", controller.getLeadsByType);
+app.post("/deleteLead", controller.deleteLead);
+
+// Agent
+app.post("/createAgent", handler.upload, controller.createAgent);
+app.post("/updateAgent", handler.upload, controller.updateAgent);
+app.post("/getAllAgents", controller.getAllAgents);
+app.post("/getAgentById", controller.getAgentById);
+app.post("/deleteAgent", controller.deleteAgent);
+
+
+
+
+
+
+
+
 
 /////////////================= Start Forget Password throw Email Section =======================/////////////
 
@@ -207,9 +227,9 @@ app.post('/sendOtpVerifyByEmail', async (req, res) => {
     try {
         let user = await Registration.findOne({ email: email })
         if (!user) {
-            return res.status(404).json({
+            return res.status(202).json({
                 error: true,
-                code: 404,
+                code: 202,
                 message: "User not found.",
             });
         }
@@ -228,7 +248,7 @@ app.post('/sendOtpVerifyByEmail', async (req, res) => {
         const mailOptions = {
             from: 'nainjihora@gmail.com', // Replace with your Gmail address
             to: email,
-            subject: 'OTP for Password Reset',
+            subject: 'OTP for Password Reset - KMS',
             text: `Your OTP is: ${otp}. It will expire on ${expire_time} and was sent at ${expire_at1}`
         };
 
@@ -376,6 +396,7 @@ app.post('/forgetPassword', async (req, res) => {
                 })
             }
             else {
+
 
 
                 let bPassword = await handler.bcryptPassword(newPassword)

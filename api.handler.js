@@ -39,16 +39,41 @@ exports.verifyToken = (req, res, next) => {
 
 //========================== Function For Upload Image & Documents ===================================//
 
-exports.upload = multer({
+// exports.upload = multer({
 
+//     storage: multer.diskStorage({
+//         destination: function (req, file, cb) {
+//             cb(null, "uploads")
+//         },
+//         filename: function (req, file, cb) {
+//             cb(null, Date.now() + file.originalname)
+//         }
+//     })
+// }).single("file");
+
+// // Multer configuration for file uploads
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//       cb(null, 'uploads/');
+//     },
+//     filename: function (req, file, cb) {
+//       cb(null, Date.now() + '-' + file.originalname);
+//     }
+//   });
+//   const upload = multer({ storage });
+
+exports.upload = multer({
     storage: multer.diskStorage({
         destination: function (req, file, cb) {
-            cb(null, "uploads")
+            cb(null, "uploads"); // Store files in 'uploads' folder
         },
         filename: function (req, file, cb) {
-            cb(null, Date.now() + file.originalname)
+            cb(null, Date.now() + "-" + file.originalname);
         }
     })
-}).single("file");
+}).fields([
+    { name: "cover_image", maxCount: 1 }, // Single cover image
+    { name: "images", maxCount: 10 } // Multiple images (max 10)
+]);
 
 
