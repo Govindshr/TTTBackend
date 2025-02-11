@@ -80,6 +80,7 @@ const ItinerarySchema = new mongoose.Schema(
     {
         itinerary_title: { type: String, required: true },
         destination: { type: mongoose.Schema.Types.ObjectId }, // Reference to Destination
+        additional_information: { type: String, default: "" },
         cover_image: { type: String, default: "" },
         days_and_night: { type: String, required: true },
         current_price: { type: Number, required: true },
@@ -88,7 +89,7 @@ const ItinerarySchema = new mongoose.Schema(
         images: { type: [String], default: [] },
         trip_highlights: [],
         prerequisites_knowledge: { type: String, default: "" },
-        additional_information: { type: String, default: "" },
+        destination_name: { type: String, default: "" },
         day_wise_itinerary: [],
         status: { type: String, enum: ["active", "inactive"], default: "inactive" },
         inclusions: [],

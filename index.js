@@ -149,7 +149,7 @@ app.post("/updateTestimonial", handler.upload, controller.updateTestimonial);
 app.post("/getAllTestimonials", controller.getAllTestimonials);
 app.post("/getTestimonialById", controller.getTestimonialById);
 app.post("/updateTestimonialStatus", controller.updateTestimonialStatus);
-app.post("/updateTestimonialStatus", controller.updateTestimonialStatus);
+app.post("/deleteTestimonial", controller.deleteTestimonial);
 
 // Partner
 app.post("/addPartner", handler.upload, controller.addPartner);

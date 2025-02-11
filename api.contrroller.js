@@ -567,6 +567,7 @@ exports.saveItinerary = async (req, res) => {
         let trip_highlights = data.trip_highlights  ? JSON.parse(data.trip_highlights) : [];
         let prerequisites_knowledge = data.prerequisites_knowledge || "";
         let additional_information = data.additional_information || "";
+        let destination_name = data.destination_name || "";
         let day_wise_itinerary = data.day_wise_itinerary ? JSON.parse(data.day_wise_itinerary) : [];
         let status = data.status || "inactive"; // Default status
         let inclusions = data.inclusions  ? JSON.parse(data.inclusions) : [];
@@ -590,6 +591,7 @@ exports.saveItinerary = async (req, res) => {
             trip_highlights,
             prerequisites_knowledge,
             additional_information,
+            destination_name,
             day_wise_itinerary,
             inclusions,
             exclusions,
@@ -1324,29 +1326,17 @@ exports.updateTestimonialStatus = async (req, res) => {
 
 // Hard Delete Testimonial API
 exports.deleteTestimonial = async (req, res) => {
-    console.log("/deleteTestimonial API called");
-
-    let { id } = req.body;
-
     try {
-        // Perform a hard delete of the testimonial by ID
-        let deletedTestimonial = await Testimonial.findOneAndDelete({ _id: id });
+        const { id } = req.body;
+        const deletedTestimonial = await Testimonial.findByIdAndDelete(id);
 
         if (!deletedTestimonial) {
             return res.status(404).json({ error: true, message: "Testimonial not found" });
         }
 
-        res.status(200).json({
-            error: false,
-            message: "Testimonial deleted successfully"
-        });
+        res.status(200).json({ error: false, message: "Testimonial deleted successfully" });
     } catch (error) {
-        console.error("Catch Error:", error);
-        res.status(500).json({
-            error: true,
-            message: "Something went wrong",
-            data: error
-        });
+        res.status(500).json({ error: true, message: "Server error", data: error });
     }
 };
 
