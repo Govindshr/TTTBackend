@@ -316,8 +316,8 @@ exports.saveDestination = async (req, res) => {
             destination_name,
             description,
             privacy_policy,
-            taxes: parseFloat(taxes),
-            fees: parseFloat(fees),
+            taxes: taxes,
+            fees: fees,
             cover_image,
             images,
             faqs,
@@ -471,7 +471,7 @@ exports.getAllDestinations = async (req, res) => {
     console.log("/getAllDestinations API called");
 
     try {
-        const destinations = await Destination.find({});
+        const destinations = await Destination.find({}, "_id destination_name cover_image");
         res.status(200).json({
             error: false,
             code: 200,
@@ -696,7 +696,10 @@ exports.getItineraryById = async (req, res) => {
 exports.getItinerariesByDestination = async (req, res) => {
     try {
         const { destinationId } = req.body;
-        const itineraries = await Itinerary.find({ destination: ObjectId(destinationId) });
+        const itineraries = await Itinerary.find(
+            { destination: ObjectId(destinationId) },
+            "_id itinerary_title cover_image days_and_night status current_price"
+        );
 
         res.status(200).json({ error: false, data: itineraries });
     } catch (error) {
@@ -810,7 +813,9 @@ exports.getDestinationWithType = async (req, res) => {
                     _id: 1,
                     type: 1,
                     status: 1,
-                    destinationDetails: 1 // Include all fields from the Destination table
+                    "destinationDetails._id": 1,
+                    "destinationDetails.destination_name": 1,
+                    "destinationDetails.cover_image": 1
                 }
             }
         ]);
@@ -905,7 +910,9 @@ exports.getItinerariesWithType = async (req, res) => {
                     status: 1,
                     createdAt: 1,
                     updatedAt: 1,
-                    itineraryDetails: 1 // Include all fields from the Itinerary table
+                    "itineraryDetails._id": 1,
+                    "itineraryDetails.itinerary_title": 1,
+                    "itineraryDetails.cover_image": 1
                 }
             }
         ]);

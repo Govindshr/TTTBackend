@@ -73,7 +73,7 @@ exports.upload = multer({
     })
 }).fields([
     { name: "cover_image", maxCount: 1 }, // Single cover image
-    { name: "images", maxCount: 10 } // Multiple images (max 10)
+    { name: "images", maxCount: 30 } // Multiple images (max 10)
 ]);
 
 
