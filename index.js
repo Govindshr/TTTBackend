@@ -13,36 +13,31 @@ const https = require('https');
 
 
 
-const ObjectId = require('mongoose').Types.ObjectId;
+require("dotenv").config({ path: process.env.NODE_ENV === "production" ? ".env.production" : ".env" });
+
+const express = require("express");
 const cors = require("cors");
-const controller = require('./api.contrroller')
-const handler = require('./api.handler')
+const bodyParser = require("body-parser");
 
-// var validator = require('gstin-validator');
-
-
-require("./db/config");
-
-const { Question, scenario_details, Registration, logs,Email_otp } = require("./db/schema")
-
+require("./db/config"); // Ensure database connection is established
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-
-// Body parser middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-// Serve 'uploads' directory
 
-app.get('/', (req, res) => {
-    res.send("Home Page Of KMS");
-})
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.get("/", (req, res) => {
+    res.send("Home Page of KMS");
+});
 
-app.listen((2001), () => {
-    console.log("app is running on port 2001")
-})
+// Serve uploaded files
+app.use("/uploads", express.static("uploads"));
+
+const PORT = process.env.PORT || 2001;
+app.listen(PORT, () => {
+    console.log(`App is running on port ${PORT}`);
+});
 
 // let server;
 // const options = {
