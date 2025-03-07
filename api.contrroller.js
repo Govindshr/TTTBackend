@@ -665,8 +665,8 @@ exports.saveItinerary = async (req, res) => {
         let faqs = data.faqs ? JSON.parse(data.faqs) : [];
 
         // Handle file uploads
-        let cover_image = req.files?.cover_image ? req.files.cover_image[0].path : "";
-        let images = req.files?.images ? req.files.images.map(file => file.path) : [];
+        let cover_image = req.files?.find(file => file.fieldname === "cover_image")?.path || "";
+        let images = req.files?.filter(file => file.fieldname === "images").map(file => file.path) || [];
 
         // Prepare data for saving
         let saveData = {
