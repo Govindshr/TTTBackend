@@ -291,6 +291,60 @@ exports.getQuestionById = async (req, res) => {
 
 /************************  Destination API ************************* */
 
+// exports.saveDestination = async (req, res) => {
+//     console.log("/saveDestination API called");
+
+//     let data = req.body;
+//     let savedDestination;
+
+//     try {
+//         // Extract values from the request body
+//         let destination_name = data.destination_name || "";
+//         let description = data.description || "";
+//         let privacy_policy = data.privacy_policy || "";
+//         let taxes = data.taxes || 0;
+//         let fees = data.fees || 0;
+//         let faqs = data.faqs ? JSON.parse(data.faqs) : []; // Parse faqs from JSON string
+//         let scene = data.scene || "";  // Assuming scene is also passed as a form-data field
+
+//         // Handle uploaded files
+//         let cover_image = req.files?.cover_image ? req.files.cover_image[0].path : "";
+//         let images = req.files?.images ? req.files.images.map(file => file.path) : [];
+
+//         // Prepare data for saving
+//         let saveData = {
+//             destination_name,
+//             description,
+//             privacy_policy,
+//             taxes: taxes,
+//             fees: fees,
+//             cover_image,
+//             images,
+//             faqs,
+//             scene
+//         };
+
+//         // Save the data to the database
+//         savedDestination = await Destination.create(saveData);
+
+//         // Respond with success
+//         res.status(200).json({
+//             error: false,
+//             code: 200,
+//             message: "Saved Successfully",
+//             data: savedDestination
+//         });
+//     } catch (error) {
+//         console.error("Catch Error:", error);
+//         res.status(400).json({
+//             error: true,
+//             code: 400,
+//             message: "Something went wrong",
+//             data: error
+//         });
+//     }
+// };
+
 exports.saveDestination = async (req, res) => {
     console.log("/saveDestination API called");
 
@@ -311,17 +365,43 @@ exports.saveDestination = async (req, res) => {
         let cover_image = req.files?.cover_image ? req.files.cover_image[0].path : "";
         let images = req.files?.images ? req.files.images.map(file => file.path) : [];
 
+        // Process site_seeing data
+        let site_seeing = [];
+        if (data.site_seeing) {
+            let parsedSiteSeeing = JSON.parse(data.site_seeing);
+            if (Array.isArray(parsedSiteSeeing)) {
+                site_seeing = parsedSiteSeeing.map((item, index) => {
+                    return {
+                        title: item.title || "",
+                        heading: item.heading || "",
+                        subheading: item.subheading || "",
+                        design: item.design || "",
+                        details: Array.isArray(item.details) ? item.details.map((detail, dIndex) => {
+                            return {
+                                title: detail.title || "",
+                                description: detail.description || "",
+                                image: req.files?.[`site_seeing[${index}][details][${dIndex}][image]`]
+                                    ? req.files[`site_seeing[${index}][details][${dIndex}][image]`][0].path
+                                    : ""
+                            };
+                        }) : []
+                    };
+                });
+            }
+        }
+
         // Prepare data for saving
         let saveData = {
             destination_name,
             description,
             privacy_policy,
-            taxes: taxes,
-            fees: fees,
+            taxes,
+            fees,
             cover_image,
             images,
             faqs,
-            scene
+            scene,
+            site_seeing
         };
 
         // Save the data to the database
@@ -344,6 +424,7 @@ exports.saveDestination = async (req, res) => {
         });
     }
 };
+
 
 exports.deleteDestination = async (req, res) => {
     console.log("/deleteDestination API called");

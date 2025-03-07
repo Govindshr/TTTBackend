@@ -55,6 +55,26 @@ const registrationSchema = new mongoose.Schema({
     , { timestamps: true   });
 const Registration = mongoose.model("registrations", registrationSchema);
 
+// // Destination Schema
+// const DestinationSchema = new mongoose.Schema({
+//     destination_name: { type: String, required: true },
+//     description: { type: String },
+//     cover_image: { type: String },
+//     privacy_policy: { type: String },
+//     taxes: { type: String, default: 0 },
+//     fees: { type: String, default: 0 },
+//     images: [{ type: String }], // Array of image URLs
+//     faqs: [
+//         // {
+//         //     question: { type: String, required: true },
+//         //     answer: { type: String, required: true }
+//         // }
+//     ],
+//     status: { type: Number, default: 1 },
+//     is_deleted: { type: Number, default: 0 }
+// }, { timestamps: true });
+// const Destination = mongoose.model('Destination', DestinationSchema);
+
 // Destination Schema
 const DestinationSchema = new mongoose.Schema({
     destination_name: { type: String, required: true },
@@ -65,15 +85,32 @@ const DestinationSchema = new mongoose.Schema({
     fees: { type: String, default: 0 },
     images: [{ type: String }], // Array of image URLs
     faqs: [
-        // {
-        //     question: { type: String, required: true },
-        //     answer: { type: String, required: true }
-        // }
+        {
+            question: { type: String, required: true },
+            answer: { type: String, required: true }
+        }
+    ],
+    site_seeing: [
+        {
+            title: { type: String },
+            heading: { type: String },
+            subheading: { type: String },
+            design: { type: String },
+            details: [
+                {
+                    title: { type: String },
+                    description: { type: String },
+                    image: { type: String } // Image URL
+                }
+            ]
+        }
     ],
     status: { type: Number, default: 1 },
     is_deleted: { type: Number, default: 0 }
 }, { timestamps: true });
+
 const Destination = mongoose.model('Destination', DestinationSchema);
+
 
 // Itinerary Schema
 const ItinerarySchema = new mongoose.Schema(
