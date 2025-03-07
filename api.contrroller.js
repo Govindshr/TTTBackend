@@ -352,45 +352,45 @@ exports.saveDestination = async (req, res) => {
     let savedDestination;
 
     try {
-        // Extract values from the request body
         let destination_name = data.destination_name || "";
         let description = data.description || "";
         let privacy_policy = data.privacy_policy || "";
         let taxes = data.taxes || 0;
         let fees = data.fees || 0;
-        let faqs = data.faqs ? JSON.parse(data.faqs) : []; // Parse faqs from JSON string
-        let scene = data.scene || "";  // Assuming scene is also passed as a form-data field
+        let faqs = data.faqs ? JSON.parse(data.faqs) : [];
+        let scene = data.scene || "";
 
-        // Handle uploaded files
-        let cover_image = req.files?.cover_image ? req.files.cover_image[0].path : "";
-        let images = req.files?.images ? req.files.images.map(file => file.path) : [];
+        let cover_image = req.files?.find(file => file.fieldname === "cover_image")?.path || "";
+        let images = req.files?.filter(file => file.fieldname === "images").map(file => file.path) || [];
 
-        // Process site_seeing data
+        // **Step 1: Parse `site_seeing` Data from JSON**
         let site_seeing = [];
         if (data.site_seeing) {
-            let parsedSiteSeeing = JSON.parse(data.site_seeing);
-            if (Array.isArray(parsedSiteSeeing)) {
-                site_seeing = parsedSiteSeeing.map((item, index) => {
-                    return {
-                        title: item.title || "",
-                        heading: item.heading || "",
-                        subheading: item.subheading || "",
-                        design: item.design || "",
-                        details: Array.isArray(item.details) ? item.details.map((detail, dIndex) => {
-                            return {
-                                title: detail.title || "",
-                                description: detail.description || "",
-                                image: req.files?.[`site_seeing[${index}][details][${dIndex}][image]`]
-                                    ? req.files[`site_seeing[${index}][details][${dIndex}][image]`][0].path
-                                    : ""
-                            };
-                        }) : []
-                    };
-                });
+            try {
+                site_seeing = typeof data.site_seeing === "string" ? JSON.parse(data.site_seeing) : data.site_seeing;
+            } catch (error) {
+                console.error("JSON Parse Error for site_seeing:", error);
             }
         }
 
-        // Prepare data for saving
+        // **Step 2: Assign Uploaded Images to Site Seeing Details**
+        if (req.files) {
+            console.log("Uploaded Files:", req.files); // Debugging Log
+
+            req.files.forEach((file) => {
+                let match = file.fieldname.match(/site_seeing\[(\d+)\]\[details\]\[(\d+)\]\[image\]/);
+                if (match) {
+                    let sIndex = parseInt(match[1]);
+                    let dIndex = parseInt(match[2]);
+
+                    if (site_seeing[sIndex] && site_seeing[sIndex].details[dIndex]) {
+                        site_seeing[sIndex].details[dIndex].image = file.path;
+                    }
+                }
+            });
+        }
+
+        // **Step 3: Save to Database**
         let saveData = {
             destination_name,
             description,
@@ -404,16 +404,16 @@ exports.saveDestination = async (req, res) => {
             site_seeing
         };
 
-        // Save the data to the database
         savedDestination = await Destination.create(saveData);
 
-        // Respond with success
+        // **Step 4: Respond with Success**
         res.status(200).json({
             error: false,
             code: 200,
             message: "Saved Successfully",
             data: savedDestination
         });
+
     } catch (error) {
         console.error("Catch Error:", error);
         res.status(400).json({
@@ -424,6 +424,15 @@ exports.saveDestination = async (req, res) => {
         });
     }
 };
+
+
+
+
+
+
+
+
+
 
 
 exports.deleteDestination = async (req, res) => {

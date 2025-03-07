@@ -110,6 +110,7 @@ app.post("/DeleteUser", controller.DeleteUser);
 
 // Destination
 app.post("/saveDestination", handler.upload, controller.saveDestination);
+
 app.post("/editDestination", handler.upload, controller.editDestination);
 app.post("/deleteDestination", controller.deleteDestination);
 app.post("/viewDestinationById", controller.viewDestinationById);
