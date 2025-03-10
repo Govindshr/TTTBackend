@@ -1073,7 +1073,7 @@ exports.saveHolidayTheme = async (req, res) => {
     }
 };
 
-// Update Holiday Theme
+//   sasd Update Holiday Theme
 exports.updateHolidayTheme = async (req, res) => {
     console.log("/updateHolidayTheme API called");
 
