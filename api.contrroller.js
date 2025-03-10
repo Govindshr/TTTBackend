@@ -1002,7 +1002,15 @@ exports.getItinerariesWithType = async (req, res) => {
                     updatedAt: 1,
                     "itineraryDetails._id": 1,
                     "itineraryDetails.itinerary_title": 1,
-                    "itineraryDetails.cover_image": 1
+                    "itineraryDetails.cover_image": 1,
+                    "itineraryDetails.current_price": 1,
+                    "itineraryDetails.original_price": 1,
+                    "itineraryDetails.saving": 1,
+                    "itineraryDetails.days_and_night": 1,
+                    "itineraryDetails.status": 1,
+                    "itineraryDetails.additional_information": 1,
+                   
+                    
                 }
             }
         ]);
