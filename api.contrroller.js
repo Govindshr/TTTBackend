@@ -467,62 +467,144 @@ exports.deleteDestination = async (req, res) => {
     }
 };
 
+// exports.editDestination = async (req, res) => {
+//     console.log("/editDestination API called");
+
+//     const destinationId = req.body.id; // Get ID from params
+//     let data = req.body;
+
+//     try {
+//         const destination = await Destination.findById(destinationId);
+//         if (!destination) {
+//             return res.status(404).json({
+//                 error: true,
+//                 code: 404,
+//                 message: "Destination not found"
+//             });
+//         }
+
+//         // Update destination fields (non-file related)
+//         destination.destination_name = data.destination_name || destination.destination_name;
+//         destination.description = data.description || destination.description;
+//         destination.privacy_policy = data.privacy_policy || destination.privacy_policy;
+//         destination.taxes = data.taxes || destination.taxes;
+//         destination.fees = data.fees || destination.fees;
+//         destination.faqs = data.faqs ? JSON.parse(data.faqs) : destination.faqs;
+//         destination.scene = data.scene || destination.scene;
+
+//         // Handle file updates (cover image and images)
+//         if (req.files) {
+//             if (req.files.cover_image) {
+//                 // Only update if a new cover_image file is provided
+//                 destination.cover_image = req.files.cover_image[0].path;
+//             }
+//             if (req.files.images) {
+//                 // Only update if new images are provided
+//                 destination.images = req.files.images.map(file => file.path);
+//             }
+//         }
+
+//         // Save updated destination
+//         await destination.save();
+
+//         res.status(200).json({
+//             error: false,
+//             code: 200,
+//             message: "Destination updated successfully",
+//             data: destination
+//         });
+//     } catch (error) {
+//         console.error("Catch Error:", error);
+//         res.status(400).json({
+//             error: true,
+//             code: 400,
+//             message: "Something went wrong",
+//             data: error
+//         });
+//     }
+// };
+
 exports.editDestination = async (req, res) => {
     console.log("/editDestination API called");
+    console.log("Request Body:", req.body);
+    console.log("Uploaded Files:", req.files);
 
-    const destinationId = req.body.id; // Get ID from params
     let data = req.body;
+    let destinationId = ObjectId(data.id);
 
     try {
-        const destination = await Destination.findById(destinationId);
-        if (!destination) {
-            return res.status(404).json({
-                error: true,
-                code: 404,
-                message: "Destination not found"
+        if (!destinationId) {
+            return res.status(400).json({ error: true, message: "Destination ID is required" });
+        }
+
+        let existingDestination = await Destination.findById(destinationId);
+        if (!existingDestination) {
+            return res.status(404).json({ error: true, message: "Destination not found" });
+        }
+
+        let updateData = {
+            destination_name: data.destination_name || existingDestination.destination_name,
+            description: data.description || existingDestination.description,
+            privacy_policy: data.privacy_policy || existingDestination.privacy_policy,
+            taxes: data.taxes !== undefined ? data.taxes : existingDestination.taxes,
+            fees: data.fees !== undefined ? data.fees : existingDestination.fees,
+            scene: data.scene || existingDestination.scene,
+            faqs: data.faqs ? JSON.parse(data.faqs) : existingDestination.faqs,
+        };
+
+        // **Fix: Extract files manually since `multer.any()` stores them in an array**
+        if (req.files && req.files.length > 0) {
+            req.files.forEach(file => {
+                if (file.fieldname === "cover_image") {
+                    updateData.cover_image = file.path;
+                } else if (file.fieldname === "images") {
+                    updateData.images = updateData.images || [];
+                    updateData.images.push(file.path);
+                }
             });
         }
 
-        // Update destination fields (non-file related)
-        destination.destination_name = data.destination_name || destination.destination_name;
-        destination.description = data.description || destination.description;
-        destination.privacy_policy = data.privacy_policy || destination.privacy_policy;
-        destination.taxes = data.taxes || destination.taxes;
-        destination.fees = data.fees || destination.fees;
-        destination.faqs = data.faqs ? JSON.parse(data.faqs) : destination.faqs;
-        destination.scene = data.scene || destination.scene;
+        // **Fix: Process site_seeing images correctly**
+        if (data.site_seeing) {
+            let parsedSiteSeeing = JSON.parse(data.site_seeing);
+            if (Array.isArray(parsedSiteSeeing)) {
+                updateData.site_seeing = parsedSiteSeeing.map((item, index) => {
+                    return {
+                        title: item.title || "",
+                        heading: item.heading || "",
+                        subheading: item.subheading || "",
+                        design: item.design || "",
+                        details: Array.isArray(item.details)
+                            ? item.details.map((detail, dIndex) => {
+                                  let matchingImage = req.files.find(file =>
+                                      file.fieldname.startsWith(`site_seeing[${index}][details][${dIndex}][image]`)
+                                  );
 
-        // Handle file updates (cover image and images)
-        if (req.files) {
-            if (req.files.cover_image) {
-                // Only update if a new cover_image file is provided
-                destination.cover_image = req.files.cover_image[0].path;
-            }
-            if (req.files.images) {
-                // Only update if new images are provided
-                destination.images = req.files.images.map(file => file.path);
+                                  return {
+                                      title: detail.title || "",
+                                      description: detail.description || "",
+                                      image: matchingImage ? matchingImage.path : detail.image || ""
+                                  };
+                              })
+                            : []
+                    };
+                });
             }
         }
 
-        // Save updated destination
-        await destination.save();
+        let updatedDestination = await Destination.findByIdAndUpdate(destinationId, updateData, { new: true });
 
         res.status(200).json({
             error: false,
-            code: 200,
-            message: "Destination updated successfully",
-            data: destination
+            message: "Updated Successfully",
+            data: updatedDestination
         });
     } catch (error) {
         console.error("Catch Error:", error);
-        res.status(400).json({
-            error: true,
-            code: 400,
-            message: "Something went wrong",
-            data: error
-        });
+        res.status(400).json({ error: true, message: "Something went wrong", data: error });
     }
 };
+
 
 
 exports.viewDestinationById = async (req, res) => {
