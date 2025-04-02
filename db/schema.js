@@ -121,7 +121,7 @@ const ItinerarySchema = new mongoose.Schema(
         cover_image: { type: String, default: "" },
         days_and_night: { type: String, required: true },
         mainbanner_text: { type: String, required: true },
-        destination_overview: { type: String, required: true },
+        destination_overview: { type: String },
         internal_days_and_night: {type:String , required:true},
         cms_title:{type:String , required:true},
         current_price: { type: Number, required: true },
