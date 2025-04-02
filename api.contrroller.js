@@ -1107,6 +1107,8 @@ exports.getItinerariesWithType = async (req, res) => {
                     "itineraryDetails.saving": 1,
                     "itineraryDetails.days_and_night": 1,
                     "itineraryDetails.internal_days_and_night": 1,
+                    "itineraryDetails.destination_overview": 1,
+                    "itineraryDetails.mainbanner_text": 1,
                     "itineraryDetails.status": 1,
                     "itineraryDetails.additional_information": 1,
                    
