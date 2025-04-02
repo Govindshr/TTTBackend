@@ -353,6 +353,9 @@ exports.saveDestination = async (req, res) => {
 
     try {
         let destination_name = data.destination_name || "";
+        let destination_title = data.destination_title || "";
+        let mainbanner_text = data.mainbanner_text || "";
+        let destination_overview = data.destination_overview || "";
         let description = data.description || "";
         let privacy_policy = data.privacy_policy || "";
         let taxes = data.taxes || 0;
@@ -393,6 +396,9 @@ exports.saveDestination = async (req, res) => {
         // **Step 3: Save to Database**
         let saveData = {
             destination_name,
+            destination_title,
+            mainbanner_text,
+            destination_overview,
             description,
             privacy_policy,
             taxes,
@@ -544,6 +550,9 @@ exports.editDestination = async (req, res) => {
 
         let updateData = {
             destination_name: data.destination_name || existingDestination.destination_name,
+            destination_title: data.destination_title || existingDestination.destination_title,
+            mainbanner_text: data.mainbanner_text || existingDestination.mainbanner_text,
+            destination_overview: data.destination_overview || existingDestination.destination_overview,
             description: data.description || existingDestination.description,
             privacy_policy: data.privacy_policy || existingDestination.privacy_policy,
             taxes: data.taxes !== undefined ? data.taxes : existingDestination.taxes,
@@ -567,6 +576,7 @@ exports.editDestination = async (req, res) => {
         // **Fix: Process site_seeing images correctly**
         if (data.site_seeing) {
             let parsedSiteSeeing = JSON.parse(data.site_seeing);
+        
             if (Array.isArray(parsedSiteSeeing)) {
                 updateData.site_seeing = parsedSiteSeeing.map((item, index) => {
                     return {
@@ -579,11 +589,11 @@ exports.editDestination = async (req, res) => {
                                   let matchingImage = req.files.find(file =>
                                       file.fieldname.startsWith(`site_seeing[${index}][details][${dIndex}][image]`)
                                   );
-
+        
                                   return {
                                       title: detail.title || "",
                                       description: detail.description || "",
-                                      image: matchingImage ? matchingImage.path : detail.image || ""
+                                      image: matchingImage ? matchingImage.path : detail.image || existingDestination.site_seeing[index].details[dIndex].image, // ✅ Keep old image if no new upload
                                   };
                               })
                             : []
@@ -591,6 +601,7 @@ exports.editDestination = async (req, res) => {
                 });
             }
         }
+        
 
         let updatedDestination = await Destination.findByIdAndUpdate(destinationId, updateData, { new: true });
 
@@ -733,6 +744,8 @@ exports.saveItinerary = async (req, res) => {
         let itinerary_title = data.itinerary_title || "";
         let destination = data.destination || ""; // Should be selected from the dropdown
         let days_and_night = data.days_and_night || "";
+        let internal_days_and_night = data.internal_days_and_night || "";
+        let cms_title = data.cms_title || "";
         let current_price = parseFloat(data.current_price) || 0;
         let original_price = parseFloat(data.original_price) || 0;
         let saving = parseFloat(data.saving) || 0;
@@ -756,6 +769,8 @@ exports.saveItinerary = async (req, res) => {
             destination,
             cover_image,
             days_and_night,
+            internal_days_and_night,
+            cms_title,
             current_price,
             original_price,
             saving,
@@ -822,6 +837,7 @@ exports.editItinerary = async (req, res) => {
         itinerary.itinerary_title = data.itinerary_title || itinerary.itinerary_title;
         itinerary.destination = data.destination || itinerary.destination;
         itinerary.days_and_night = data.days_and_night || itinerary.days_and_night;
+        itinerary.internal_days_and_night = data.internal_days_and_night || itinerary.internal_days_and_night;
         itinerary.current_price = parseFloat(data.current_price) || itinerary.current_price;
         itinerary.original_price = parseFloat(data.original_price) || itinerary.original_price;
         itinerary.saving = parseFloat(data.saving) || itinerary.saving;
@@ -1084,11 +1100,13 @@ exports.getItinerariesWithType = async (req, res) => {
                     updatedAt: 1,
                     "itineraryDetails._id": 1,
                     "itineraryDetails.itinerary_title": 1,
+                    "itineraryDetails.cms_title": 1,
                     "itineraryDetails.cover_image": 1,
                     "itineraryDetails.current_price": 1,
                     "itineraryDetails.original_price": 1,
                     "itineraryDetails.saving": 1,
                     "itineraryDetails.days_and_night": 1,
+                    "itineraryDetails.internal_days_and_night": 1,
                     "itineraryDetails.status": 1,
                     "itineraryDetails.additional_information": 1,
                    
