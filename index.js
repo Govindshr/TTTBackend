@@ -182,6 +182,7 @@ app.post("/updateAgent", handler.upload, controller.updateAgent);
 app.post("/getAllAgents", controller.getAllAgents);
 app.post("/getAgentById", controller.getAgentById);
 app.post("/deleteAgent", controller.deleteAgent);
+app.post("/deleteImage", controller.deleteImage);
 
 
 

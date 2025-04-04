@@ -567,11 +567,13 @@ exports.editDestination = async (req, res) => {
                 if (file.fieldname === "cover_image") {
                     updateData.cover_image = file.path;
                 } else if (file.fieldname === "images") {
-                    updateData.images = updateData.images || [];
+                    // updateData.images = updateData.images || []; //repalce images 
+                    updateData.images = existingDestination.images || []; //Retain existing images and push new ones
                     updateData.images.push(file.path);
                 }
             });
         }
+
 
         // **Fix: Process site_seeing images correctly**
         if (data.site_seeing) {
@@ -2376,6 +2378,62 @@ exports.getSchenarioImageType = (req, res) => {
             });
         });
 };
+
+
+exports.deleteImage = async (req, res) => {
+    console.log("/deleteImage API called");
+
+    let { destinationId, imagePath } = req.body;
+
+    try {
+        if (!destinationId || !imagePath) {
+            return res.status(400).json({ error: true, message: "Destination ID and Image Path are required" });
+        }
+
+        let destination = await Destination.findById(destinationId);
+
+        if (!destination) {
+            return res.status(404).json({ error: true, message: "Destination not found" });
+        }
+
+        // **Ensure the correct format for imagePath**
+        let formattedImagePath = path.join("uploads", imagePath);
+        console.log(formattedImagePath, "Formatted Image Path");
+
+        // **Check if the image exists in the `images` array**
+        if (!destination.images.includes(formattedImagePath)) {
+            return res.status(400).json({ error: true, message: "Image not found in destination" });
+        }
+
+        // Correct absolute file path to match `D:\TTTBackend\uploads\filename.jpg`
+        let filePath = path.join(__dirname, "uploads", path.basename(imagePath));
+        console.log(filePath, "Final File Path");
+        // **Ensure file deletion**
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            console.log(`Deleted file: ${filePath}`);
+        } else {
+            console.log(`File not found: ${filePath}`);
+        }
+
+        // **Remove image path from `images` field in the database**
+        let updatedDestination = await Destination.findByIdAndUpdate(
+            destinationId,
+            { $pull: { images: formattedImagePath } }, // `$pull` removes the specific image path from the array
+            { new: true }
+        );
+
+        res.status(200).json({
+            error: false,
+            message: "Image deleted successfully",
+            data: updatedDestination
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: true, message: "Something went wrong", data: error });
+    }
+};
+
 
 
 /************************ Delete Qestions and Options bye Scene Id of KMS **************** */
