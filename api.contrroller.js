@@ -1029,7 +1029,7 @@ exports.getDestinationWithType = async (req, res) => {
 exports.saveItinerariesWithType = async (req, res) => {
     console.log("/saveItinerariesWithType API called");
 
-    let { type, itineraryId } = req.body;
+    let { type, itineraryId ,destination_id} = req.body;
 
     try {
         // Validate required fields
@@ -1042,7 +1042,8 @@ exports.saveItinerariesWithType = async (req, res) => {
 
         let saveData = {
             type,
-            itineraryId
+            itineraryId,
+            destination_id
         };
 
         // Save the data to the database
@@ -1068,11 +1069,12 @@ exports.getItinerariesWithType = async (req, res) => {
     console.log("/getItinerariesWithType API called");
 
     try {
-        let { type } = req.body; // Get type from request body (optional)
+        let { type, destination_id } = req.body; // Get type from request body (optional)
 
         let matchCondition = { is_deleted: 0 };
-        if (type) {
+        if (type && destination_id) {
             matchCondition.type = type; // Apply filter only if type is provided
+            matchCondition.destination_id = ObjectId(destination_id);
         }
 
         const data = await ItinerariesWithType.aggregate([

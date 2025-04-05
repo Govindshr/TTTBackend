@@ -187,6 +187,10 @@ const ItinerariesWithTypeSchema = new mongoose.Schema(
             ref: "Itinerary", // Reference to the Itinerary collection
             required: true
         },
+        destination_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: false
+        },
         status: { type: Number, default: 1 },
         is_deleted: { type: Number, default: 0 }
     },
