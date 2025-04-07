@@ -1065,15 +1065,19 @@ exports.saveItinerariesWithType = async (req, res) => {
 };
 
 // Get Itineraries With Type
+// controllers/itineraryController.js
+
 exports.getItinerariesWithType = async (req, res) => {
     console.log("/getItinerariesWithType API called");
 
     try {
-        let { type, destination_id } = req.body; // Get type from request body (optional)
+        let { type, destination_id } = req.body;
 
         let matchCondition = { is_deleted: 0 };
-        if (type && destination_id) {
-            matchCondition.type = type; // Apply filter only if type is provided
+        if (type) {
+            matchCondition.type = type;
+        }
+        if (destination_id) {
             matchCondition.destination_id = ObjectId(destination_id);
         }
 
@@ -1083,7 +1087,7 @@ exports.getItinerariesWithType = async (req, res) => {
             },
             {
                 $lookup: {
-                    from: "itineraries", // Collection name in MongoDB
+                    from: "itineraries",
                     localField: "itineraryId",
                     foreignField: "_id",
                     as: "itineraryDetails"
@@ -1115,8 +1119,6 @@ exports.getItinerariesWithType = async (req, res) => {
                     "itineraryDetails.mainbanner_text": 1,
                     "itineraryDetails.status": 1,
                     "itineraryDetails.additional_information": 1,
-                   
-                    
                 }
             }
         ]);
