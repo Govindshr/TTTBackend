@@ -79,6 +79,8 @@ const Registration = mongoose.model("registrations", registrationSchema);
 const DestinationSchema = new mongoose.Schema({
     destination_name: { type: String, required: true },
     description: { type: String },
+    mainbanner_text: { type: String },
+    destination_overview: { type: String },
     cover_image: { type: String },
     privacy_policy: { type: String },
     taxes: { type: String, default: 0 },
