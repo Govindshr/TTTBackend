@@ -590,18 +590,26 @@ exports.editDestination = async (req, res) => {
                         subheading: item.subheading || "",
                         design: item.design || "",
                         details: Array.isArray(item.details)
-                            ? item.details.map((detail, dIndex) => {
-                                  let matchingImage = req.files.find(file =>
-                                      file.fieldname.startsWith(`site_seeing[${index}][details][${dIndex}][image]`)
-                                  );
-        
-                                  return {
-                                      title: detail.title || "",
-                                      description: detail.description || "",
-                                      image: matchingImage ? matchingImage.path : detail.image || existingDestination.site_seeing[index].details[dIndex].image, // ✅ Keep old image if no new upload
-                                  };
-                              })
-                            : []
+                        ? item.details.map((detail, dIndex) => {
+                            let matchingImage = req.files.find(file =>
+                              file.fieldname.startsWith(`site_seeing[${index}][details][${dIndex}][image]`)
+                            );
+                      
+                            let cleanedImage =
+                              typeof detail.image === "string"
+                                ? detail.image.replace(/(https?:\/\/[^/]+\/)+/, "")
+                                : "";
+                      
+                            return {
+                              title: detail.title || "",
+                              description: detail.description || "",
+                              image: matchingImage
+                                ? matchingImage.path
+                                : cleanedImage || (existingDestination.site_seeing[index]?.details[dIndex]?.image || "")
+                            };
+                          })
+                        : []
+                      
                     };
                 });
             }
@@ -1028,6 +1036,50 @@ exports.getDestinationWithType = async (req, res) => {
     }
 };
 
+// Delete DestinationWithType by ID
+exports.deleteDestinationWithType = async (req, res) => {
+    console.log("/deleteDestinationWithType API called");
+
+    const { id } = req.body;
+
+    try {
+        if (!id) {
+            return res.status(400).json({
+                error: true,
+                message: "ID is required"
+            });
+        }
+
+        // Optional: perform soft delete
+        const deleted = await DestinationWithType.findByIdAndUpdate(
+            id,
+            { is_deleted: 1 },
+            { new: true }
+        );
+
+        if (!deleted) {
+            return res.status(404).json({
+                error: true,
+                message: "DestinationWithType not found"
+            });
+        }
+
+        return res.status(200).json({
+            error: false,
+            message: "DestinationWithType deleted successfully",
+            data: deleted
+        });
+
+    } catch (error) {
+        console.error("Catch Error:", error);
+        return res.status(500).json({
+            error: true,
+            message: "Something went wrong",
+            data: error
+        });
+    }
+};
+
 // Save Itineraries With Type
 exports.saveItinerariesWithType = async (req, res) => {
     console.log("/saveItinerariesWithType API called");
@@ -1140,6 +1192,49 @@ exports.getItinerariesWithType = async (req, res) => {
         });
     }
 };
+
+// Delete ItinerariesWithType by ID
+exports.deleteItinerariesWithType = async (req, res) => {
+    console.log("/deleteItinerariesWithType API called");
+
+    const { id } = req.body;
+
+    try {
+        if (!id) {
+            return res.status(400).json({
+                error: true,
+                message: "ID is required"
+            });
+        }
+
+        const deleted = await ItinerariesWithType.findByIdAndUpdate(
+            id,
+            { is_deleted: 1 },
+            { new: true }
+        );
+
+        if (!deleted) {
+            return res.status(404).json({
+                error: true,
+                message: "ItinerariesWithType record not found"
+            });
+        }
+
+        return res.status(200).json({
+            error: false,
+            message: "ItinerariesWithType deleted successfully",
+            data: deleted
+        });
+    } catch (error) {
+        console.error("Catch Error:", error);
+        return res.status(500).json({
+            error: true,
+            message: "Something went wrong",
+            data: error
+        });
+    }
+};
+
 
 // Save Holiday Theme
 exports.saveHolidayTheme = async (req, res) => {

@@ -130,10 +130,12 @@ app.post("/getItineraryNamesByDestination", controller.getItineraryNamesByDestin
 // Destination with Type
 app.post("/saveDestinationWithType", controller.saveDestinationWithType);
 app.post("/getDestinationWithType", controller.getDestinationWithType);
+app.post("/deleteDestinationWithType",controller.deleteDestinationWithType);
 
 // Itinerary with Type
 app.post("/saveItinerariesWithType", controller.saveItinerariesWithType);
 app.post("/getItinerariesWithType", controller.getItinerariesWithType);
+app.post("/deleteItinerariesWithType", controller.deleteItinerariesWithType);
 
 // Holiday Theme
 app.post("/saveHolidayTheme", handler.upload, controller.saveHolidayTheme);
