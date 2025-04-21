@@ -837,46 +837,62 @@ exports.deleteItinerary = async (req, res) => {
 };
 
 // Edit Itinerary
+// File: controllers/itineraryController.js
+
 exports.editItinerary = async (req, res) => {
     try {
-        const { id } = req.body;
-        let data = req.body;
-
-        const itinerary = await Itinerary.findById(id);
-        if (!itinerary) {
-            return res.status(404).json({ error: true, message: "Itinerary not found" });
-        }
-
-        // Update fields
-        itinerary.itinerary_title = data.itinerary_title || itinerary.itinerary_title;
-        itinerary.destination = data.destination || itinerary.destination;
-        itinerary.days_and_night = data.days_and_night || itinerary.days_and_night;
-        itinerary.internal_days_and_night = data.internal_days_and_night || itinerary.internal_days_and_night;
-        itinerary.current_price = parseFloat(data.current_price) || itinerary.current_price;
-        itinerary.original_price = parseFloat(data.original_price) || itinerary.original_price;
-        itinerary.saving = parseFloat(data.saving) || itinerary.saving;
-        itinerary.trip_highlights = data.trip_highlights || itinerary.trip_highlights;
-        itinerary.prerequisites_knowledge = data.prerequisites_knowledge || itinerary.prerequisites_knowledge;
-        itinerary.additional_information = data.additional_information || itinerary.additional_information;
-        itinerary.day_wise_itinerary = data.day_wise_itinerary ? JSON.parse(data.day_wise_itinerary) : itinerary.day_wise_itinerary;
-        itinerary.status = data.status || itinerary.status;
-        itinerary.inclusions = data.inclusions || itinerary.inclusions;
-        itinerary.exclusions = data.exclusions || itinerary.exclusions;
-        itinerary.faqs = data.faqs ? JSON.parse(data.faqs) : itinerary.faqs;
-
-        // Handle file uploads
-        if (req.files) {
-            if (req.files.cover_image) itinerary.itinerary_cover_image = req.files.cover_image[0].path;
-            if (req.files.images) itinerary.images = req.files.images.map(file => file.path);
-        }
-
-        await itinerary.save();
-
-        res.status(200).json({ error: false, message: "Itinerary updated successfully", data: itinerary });
+      const { id } = req.body;
+      let data = req.body;
+  
+      const itinerary = await Itinerary.findById(id);
+      if (!itinerary) {
+        return res.status(404).json({ error: true, message: "Itinerary not found" });
+      }
+  
+      itinerary.itinerary_title = data.itinerary_title || itinerary.itinerary_title;
+      itinerary.cms_title = data.cms_title || itinerary.cms_title;
+      itinerary.destination = data.destination || itinerary.destination;
+      itinerary.days_and_night = data.days_and_night || itinerary.days_and_night;
+      itinerary.internal_days_and_night = data.internal_days_and_night || itinerary.internal_days_and_night;
+      itinerary.current_price = parseFloat(data.current_price) || itinerary.current_price;
+      itinerary.original_price = parseFloat(data.original_price) || itinerary.original_price;
+      itinerary.saving = parseFloat(data.saving) || itinerary.saving;
+  
+      itinerary.trip_highlights = data.trip_highlights
+        ? JSON.parse(data.trip_highlights)
+        : itinerary.trip_highlights;
+  
+      itinerary.prerequisites_knowledge = data.prerequisites_knowledge || itinerary.prerequisites_knowledge;
+      itinerary.additional_information = data.additional_information || itinerary.additional_information;
+  
+      itinerary.day_wise_itinerary = data.day_wise_itinerary
+        ? JSON.parse(data.day_wise_itinerary)
+        : itinerary.day_wise_itinerary;
+  
+      itinerary.inclusions = data.inclusions
+        ? JSON.parse(data.inclusions)
+        : itinerary.inclusions;
+  
+      itinerary.exclusions = data.exclusions
+        ? JSON.parse(data.exclusions)
+        : itinerary.exclusions;
+  
+      itinerary.faqs = data.faqs ? JSON.parse(data.faqs) : itinerary.faqs;
+      itinerary.status = data.status || itinerary.status;
+  
+      if (req.files) {
+        if (req.files.cover_image) itinerary.itinerary_cover_image = req.files.cover_image[0].path;
+        if (req.files.images) itinerary.images = req.files.images.map(file => file.path);
+      }
+  
+      await itinerary.save();
+  
+      res.status(200).json({ error: false, message: "Itinerary updated successfully", data: itinerary });
     } catch (error) {
-        res.status(500).json({ error: true, message: "Server error", data: error });
+      res.status(500).json({ error: true, message: "Server error", data: error });
     }
-};
+  };
+  
 
 // Get Itinerary by ID
 exports.getItineraryById = async (req, res) => {
