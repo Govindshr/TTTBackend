@@ -310,6 +310,14 @@ const leadSchema = new mongoose.Schema({
         type: String,
         default: ''
     },
+    destination_name: {
+        type: String,
+        default: ''
+    },
+    itinerary_title: {
+        type: String,
+        default: ''
+    },
     lead_type: {
         type: String,
         enum: ['general', 'destination', 'itinerary'],

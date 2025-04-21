@@ -14,7 +14,8 @@ const handler = require('./api.handler')
 const { Question,  Registration, Destination, Itinerary, DestinationWithType, 
     ItinerariesWithType, HolidaysByTheme, Testimonial, Partner, Vendor, Lead, Agent
 
-} = require("./db/schema")
+} = require("./db/schema");
+const { Mongoose } = require("mongoose");
 
 
 
@@ -2072,56 +2073,88 @@ exports.updateVendorStatus = async (req, res) => {
     }
 };
 
-// Create Lead
+//Create Lead
 exports.createLead = async (req, res) => {
     console.log("/createLead API called");
-
-    let data = req.body;
+  
+    const data = req.body;
     let savedLead;
-
+  
     try {
-        // Extract values from the request body
-        let name = data.name || "";
-        let phone_number = data.phone_number || "";
-        let email = data.email || "";
-        let message = data.message || "";
-        let lead_type = data.lead_type || "";
-        let lead_status = data.lead_status || "new";
-        let priority = data.priority || "medium";
-        let destination_details = data.lead_type === "destination" ? data.destination_details : "";
-        let itinerary_details = data.lead_type === "itinerary" ? data.itinerary_details : "";
-
-        // Prepare data for saving
-        let saveData = {
-            name,
-            phone_number,
-            email,
-            message,
-            lead_type,
-            lead_status,
-            priority,
-            destination_details,
-            itinerary_details
-        };
-
-        // Save the data to the database
-        savedLead = await Lead.create(saveData);
-
-        res.status(200).json({
-            error: false,
-            message: "Lead Created Successfully",
-            data: savedLead
-        });
+      const {
+        name = "",
+        phone_number = "",
+        email = "",
+        message = "",
+        lead_status = "new",
+        priority = "medium",
+        destination_id = null,
+        itinerary_id = null,
+        destination_details = "",
+        itinerary_details = ""
+      } = data;
+  
+      let lead_type = "general";
+      let destination_name = "";
+      let itinerary_title = "";
+  
+      // Check for destination
+      if (destination_id && ObjectId.isValid(destination_id)) {
+        const destination = await Destination.findOne({ _id: destination_id, is_deleted: 0 });
+  
+        if (destination) {
+          lead_type = "destination";
+          destination_name = destination.destination_name;
+        }
+      }
+  
+      // Check for itinerary only if destination not matched
+      if (
+        lead_type === "general" &&
+        itinerary_id &&
+        ObjectId.isValid(itinerary_id)
+      ) {
+        const itinerary = await Itinerary.findOne({ _id: itinerary_id, is_deleted: 0 });
+  
+        if (itinerary) {
+          lead_type = "itinerary";
+          itinerary_title = itinerary.itinerary_title;
+        }
+      }
+  
+      const saveData = {
+        name,
+        phone_number,
+        email,
+        message,
+        lead_type,
+        lead_status,
+        priority,
+        destination_details,
+        itinerary_details,
+        ...(destination_name && { destination_name }),
+        ...(itinerary_title && { itinerary_title }),
+      };
+  
+      savedLead = await Lead.create(saveData);
+  
+      res.status(200).json({
+        error: false,
+        message: "Lead Created Successfully",
+        data: savedLead
+      });
+  
     } catch (error) {
-        console.error("Catch Error:", error);
-        res.status(400).json({
-            error: true,
-            message: "Something went wrong",
-            data: error
-        });
+      console.error("Catch Error:", error);
+      res.status(400).json({
+        error: true,
+        message: "Something went wrong",
+        data: error
+      });
     }
-};
-
+  };
+  
+  
 // Get All Leads
 exports.getAllLeads = async (req, res) => {
     console.log("/getAllLeads API called");
