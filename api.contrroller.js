@@ -880,15 +880,23 @@ exports.editItinerary = async (req, res) => {
       itinerary.faqs = data.faqs ? JSON.parse(data.faqs) : itinerary.faqs;
       itinerary.status = data.status || itinerary.status;
   
-      if (req.files) {
-        if (req.files.cover_image) itinerary.itinerary_cover_image = req.files.cover_image[0].path;
-        if (req.files.images) itinerary.images = req.files.images.map(file => file.path);
-      }
+      if (req.files && req.files.length > 0) {
+        req.files.forEach(file => {
+            if (file.fieldname === "cover_image") {
+                itinerary.cover_image = file.path;
+            } else if (file.fieldname === "images") {
+                // updateData.images = updateData.images || []; //repalce images 
+                itinerary.images = itinerary.images || []; //Retain existing images and push new ones
+                itinerary.images.push(file.path);
+            }
+        });
+    }
   
       await itinerary.save();
   
       res.status(200).json({ error: false, message: "Itinerary updated successfully", data: itinerary });
     } catch (error) {
+        console.log(error)
       res.status(500).json({ error: true, message: "Server error", data: error });
     }
   };
