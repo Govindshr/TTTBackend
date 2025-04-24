@@ -933,27 +933,49 @@ exports.getItinerariesByDestination = async (req, res) => {
     }
 };
 
-// Update Itinerary Status (Active/Inactive)
+
+
+
 exports.updateItineraryStatus = async (req, res) => {
     try {
-        const { id , status} = req.body;
-
-        // if (!["active", "inactive"].includes(status)) {
-        //     return res.status(400).json({ error: true, message: "Invalid status" });
-        // }
-
-        const itinerary = await Itinerary.findByIdAndUpdate(id, { status }, { new: true });
-
-        if (!itinerary) {
-            return res.status(404).json({ error: true, message: "Itinerary not found" });
-        }
-
-        res.status(200).json({ error: false, message: "Status updated successfully", data: itinerary });
+      const { id, status } = req.body;
+  
+      if (typeof status !== "number" || (status !== 0 && status !== 1)) {
+        return res.status(400).json({
+          error: true,
+          message: "Status must be 0 or 1 (number)",
+        });
+      }
+  
+      const itinerary = await Itinerary.findById(id);
+  
+      if (!itinerary) {
+        return res.status(404).json({
+          error: true,
+          message: "Itinerary not found",
+        });
+      }
+  
+      // Toggle status
+      const newStatus = status === 1 ? 0 : 1;
+  
+      itinerary.status = newStatus;
+      await itinerary.save();
+  
+      return res.status(200).json({
+        error: false,
+        message: `Itinerary status updated to ${newStatus}`,
+        data: itinerary,
+      });
     } catch (error) {
-        res.status(500).json({ error: true, message: "Server error", data: error });
+      console.error("Update error:", error);
+      return res.status(500).json({
+        error: true,
+        message: "Server error",
+        data: error,
+      });
     }
-};
-
+  };
 // Get Name & ID by Destination
 exports.getItineraryNamesByDestination = async (req, res) => {
     try {
@@ -1151,20 +1173,14 @@ exports.getItinerariesWithType = async (req, res) => {
     console.log("/getItinerariesWithType API called");
 
     try {
-        let { type, destination_id } = req.body;
+        const { type, destination_id } = req.body;
 
-        let matchCondition = { is_deleted: 0 };
-        if (type) {
-            matchCondition.type = type;
-        }
-        if (destination_id) {
-            matchCondition.destination_id = ObjectId(destination_id);
-        }
+        const matchCondition = { is_deleted: 0 };
+        if (type) matchCondition.type = type;
+        if (destination_id) matchCondition.destination_id = ObjectId(destination_id);
 
         const data = await ItinerariesWithType.aggregate([
-            {
-                $match: matchCondition
-            },
+            { $match: matchCondition },
             {
                 $lookup: {
                     from: "itineraries",
@@ -1176,7 +1192,12 @@ exports.getItinerariesWithType = async (req, res) => {
             {
                 $unwind: {
                     path: "$itineraryDetails",
-                    preserveNullAndEmptyArrays: true
+                    preserveNullAndEmptyArrays: false
+                }
+            },
+            {
+                $match: {
+                    "itineraryDetails.status": 1
                 }
             },
             {
@@ -2180,16 +2201,41 @@ exports.createLead = async (req, res) => {
   
   
 // Get All Leads
+// controllers/leadController.js
+
+// controllers/leadController.js
+
 exports.getAllLeads = async (req, res) => {
     console.log("/getAllLeads API called");
 
     try {
-        const leads = await Lead.find({}).sort({ created_at: -1 });
+        const { lead_type, page = 1, limit = 10 } = req.body;
+
+        const filter = {};
+        if (lead_type) {
+            filter.lead_type = lead_type.toLowerCase(); // Normalize
+        }
+
+        const skip = (parseInt(page) - 1) * parseInt(limit);
+
+        const [leads, total] = await Promise.all([
+            Lead.find(filter)
+                .sort({ created_at: -1 })
+                .skip(skip)
+                .limit(parseInt(limit)),
+            Lead.countDocuments(filter)
+        ]);
 
         res.status(200).json({
             error: false,
             message: "Leads retrieved successfully",
-            data: leads
+            data: leads,
+            pagination: {
+                total,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                pages: Math.ceil(total / limit)
+            }
         });
     } catch (error) {
         console.error("Catch Error:", error);
@@ -2200,6 +2246,8 @@ exports.getAllLeads = async (req, res) => {
         });
     }
 };
+
+
 
 // Get Leads By Type
 exports.getLeadsByType = async (req, res) => {
@@ -2542,32 +2590,30 @@ exports.getSchenarioImageType = (req, res) => {
 exports.deleteImage = async (req, res) => {
     console.log("/deleteImage API called");
 
-    let { destinationId, imagePath } = req.body;
+    const { destinationId, imagePath } = req.body;
 
     try {
         if (!destinationId || !imagePath) {
             return res.status(400).json({ error: true, message: "Destination ID and Image Path are required" });
         }
 
-        let destination = await Destination.findById(destinationId);
+        const destination = await Destination.findById(destinationId);
 
         if (!destination) {
             return res.status(404).json({ error: true, message: "Destination not found" });
         }
 
-        // **Ensure the correct format for imagePath**
-        let formattedImagePath = path.join("uploads", imagePath);
-        console.log(formattedImagePath, "Formatted Image Path");
+        // Normalize paths for comparison
+        const normalizedImagePath = imagePath.replace(/\\/g, "/");
+        const normalizedDBPaths = destination.images.map(img => img.replace(/\\/g, "/"));
 
-        // **Check if the image exists in the `images` array**
-        if (!destination.images.includes(formattedImagePath)) {
+        if (!normalizedDBPaths.includes(normalizedImagePath)) {
             return res.status(400).json({ error: true, message: "Image not found in destination" });
         }
 
-        // Correct absolute file path to match `D:\TTTBackend\uploads\filename.jpg`
-        let filePath = path.join(__dirname, "uploads", path.basename(imagePath));
+        const filePath = path.join(__dirname, "..", "uploads", path.basename(imagePath));
         console.log(filePath, "Final File Path");
-        // **Ensure file deletion**
+
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
             console.log(`Deleted file: ${filePath}`);
@@ -2575,10 +2621,9 @@ exports.deleteImage = async (req, res) => {
             console.log(`File not found: ${filePath}`);
         }
 
-        // **Remove image path from `images` field in the database**
-        let updatedDestination = await Destination.findByIdAndUpdate(
+        const updatedDestination = await Destination.findByIdAndUpdate(
             destinationId,
-            { $pull: { images: formattedImagePath } }, // `$pull` removes the specific image path from the array
+            { $pull: { images: { $in: [imagePath, normalizedImagePath] } } },
             { new: true }
         );
 
@@ -2586,6 +2631,57 @@ exports.deleteImage = async (req, res) => {
             error: false,
             message: "Image deleted successfully",
             data: updatedDestination
+        });
+    } catch (error) {
+        console.error("Error:", error);
+        res.status(500).json({ error: true, message: "Something went wrong", data: error });
+    }
+};
+
+exports.deleteItineraryImage = async (req, res) => {
+   
+
+    const { itineraryId, imagePath } = req.body;
+
+    try {
+        if (!itineraryId || !imagePath) {
+            return res.status(400).json({ error: true, message: "Itinerary ID and Image Path are required" });
+        }
+
+        const itinerary = await Itinerary.findById(itineraryId);
+
+        if (!itinerary) {
+            return res.status(404).json({ error: true, message: "Itinerary not found" });
+        }
+
+        // Normalize paths for comparison
+        const normalizedImagePath = imagePath.replace(/\\/g, "/");
+        const normalizedDBPaths = itinerary.images.map(img => img.replace(/\\/g, "/"));
+
+        if (!normalizedDBPaths.includes(normalizedImagePath)) {
+            return res.status(400).json({ error: true, message: "Image not found in Itinerary" });
+        }
+
+        const filePath = path.join(__dirname, "..", "uploads", path.basename(imagePath));
+        console.log(filePath, "Final File Path");
+
+        if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+            console.log(`Deleted file: ${filePath}`);
+        } else {
+            console.log(`File not found: ${filePath}`);
+        }
+
+        const updatedItinerary = await Itinerary.findByIdAndUpdate(
+            itineraryId,
+            { $pull: { images: { $in: [imagePath, normalizedImagePath] } } },
+            { new: true }
+        );
+
+        res.status(200).json({
+            error: false,
+            message: "Image deleted successfully",
+            data: updatedItinerary
         });
     } catch (error) {
         console.error("Error:", error);
