@@ -353,6 +353,11 @@ const agentSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
+    password: {
+        type: String,
+        required: true,
+        trim: true
+    },
     email: {
         type: String,
         required: true,
@@ -374,7 +379,12 @@ const agentSchema = new mongoose.Schema({
     },
     gender: {
         type: String,
-        enum: ['Male', 'Female', 'Other'],
+        enum: ['male', 'female', 'other'],
+        required: true
+    },
+    user_role: {
+        type: String,
+        enum: ['agent', 'super_agent'],
         required: true
     },
     education_status: {
@@ -387,7 +397,7 @@ const agentSchema = new mongoose.Schema({
         required: true
     },
     skills: {
-        type: [String], // Array of skills
+        type: String, // Array of skills
         required: true
     },
     designation: {

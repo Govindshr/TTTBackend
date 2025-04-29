@@ -2375,25 +2375,34 @@ exports.createAgent = async (req, res) => {
     let data = req.body;
     let savedAgent;
 
+    if (!data.password || data.password.length < 6) {
+        return res.status(400).json({ error: true, message: "Password must be at least 6 characters" });
+      }
+      
+
     try {
         // Extract values from the request body
         let name = data.name || "";
         let email = data.email || "";
+        let password = await bcrypt.hash(data.password || "", 10);
+        let user_role =data.user_role || " ";
         let number = data.number || "";
         let secondary_number = data.secondary_number || "";
         let salary = data.salary || 0;
         let gender = data.gender || "";
         let education_status = data.education_status || "";
         let DOB = data.DOB || "";
-        let skills = data.skills || [];
+        let skills = data.skills || '';
         let designation = data.designation || "";
-        let profile_photo = data.profile_photo || "";
-
+        // let profile_photo = data.profile_photo || "";
+        let profile_photo = req.files?.find(file => file.fieldname === "profile_photo")?.path || "";
         // Prepare data for saving
         let saveData = {
             name,
             email,
+            password,
             number,
+            user_role,
             secondary_number,
             salary,
             gender,
@@ -2488,6 +2497,7 @@ exports.updateAgent = async (req, res) => {
             name: data.name || "",
             email: data.email || "",
             number: data.number || "",
+            password:data.password ||"admin@123",
             secondary_number: data.secondary_number || "",
             salary: data.salary || 0,
             gender: data.gender || "",
@@ -2495,10 +2505,15 @@ exports.updateAgent = async (req, res) => {
             DOB: data.DOB || "",
             skills: data.skills || [],
             designation: data.designation || "",
-            profile_photo: data.profile_photo || "",
             updated_at: Date.now()
         };
-
+        if (req.files && req.files.length > 0) {
+            req.files.forEach(file => {
+                if (file.fieldname === "profile_photo") {
+                    updateData.profile_photo = file.path;
+                } 
+            });
+        }
         // Find and update the agent
         let updatedAgent = await Agent.findByIdAndUpdate(id, updateData, { new: true });
 
@@ -2553,6 +2568,64 @@ exports.deleteAgent = async (req, res) => {
         });
     }
 };
+
+exports.loginAgent = async (req, res) => {
+    console.log("/loginAgent API called");
+  
+    const { email, password } = req.body;
+  
+    if (!email || !password) {
+      return res.status(400).json({
+        error: true,
+        message: "Email and password are required"
+      });
+    }
+  
+    try {
+      const agent = await Agent.findOne({ email });
+  
+      if (!agent) {
+        return res.status(404).json({
+          error: true,
+          message: "Agent not found"
+        });
+      }
+  
+      const isMatch = await bcrypt.compare(password, agent.password);
+  
+      if (!isMatch) {
+        return res.status(401).json({
+          error: true,
+          message: "Invalid password"
+        });
+      }
+  
+      // Generate JWT Token
+      const token = jwt.sign(
+        { id: agent._id, email: agent.email, role: agent.user_role },
+        process.env.JWT_SECRET || "your-secret-key",
+        { expiresIn: "7d" }
+      );
+  
+      res.status(200).json({
+        error: false,
+        message: "Login successful",
+        token,
+        user: {
+          id: agent._id,
+          name: agent.name,
+          email: agent.email,
+          role: agent.user_role
+        }
+      });
+    } catch (err) {
+      console.error("Login error:", err);
+      res.status(500).json({
+        error: true,
+        message: "Something went wrong",
+      });
+    }
+  };
 
 
 
