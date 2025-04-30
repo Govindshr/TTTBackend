@@ -2198,23 +2198,19 @@ exports.createLead = async (req, res) => {
       });
     }
   };
-  
-  
-// Get All Leads
-// controllers/leadController.js
 
-// controllers/leadController.js
 
 exports.getAllLeads = async (req, res) => {
     console.log("/getAllLeads API called");
 
     try {
-        const { lead_type, page = 1, limit = 10 } = req.body;
+       
 
+        const { lead_type, page = 1, limit = 10, assigned_to } = req.body;
         const filter = {};
-        if (lead_type) {
-            filter.lead_type = lead_type.toLowerCase(); // Normalize
-        }
+        if (lead_type) filter.lead_type = lead_type.toLowerCase();
+        if (assigned_to) filter.assigned_to = assigned_to;
+        
 
         const skip = (parseInt(page) - 1) * parseInt(limit);
 
@@ -2368,6 +2364,46 @@ exports.deleteLead = async (req, res) => {
     }
 };
 
+exports.updateLeadStatus = async (req, res) => {
+    console.log("/updateLeadStatus API called");
+  
+    const { lead_id, new_status, updated_by_id, updated_by_name } = req.body;
+  
+    if (!lead_id || !new_status || !updated_by_id || !updated_by_name) {
+      return res.status(400).json({
+        error: true,
+        message: "Missing required fields: lead_id, new_status, updated_by_id, updated_by_name"
+      });
+    }
+  
+    try {
+      const lead = await Lead.findById(lead_id);
+      if (!lead) {
+        return res.status(404).json({ error: true, message: "Lead not found" });
+      }
+  
+      lead.lead_status = new_status;
+      lead.updatedBy = {
+        id: updated_by_id,
+        name: updated_by_name
+      };
+      await lead.save();
+  
+      return res.status(200).json({
+        error: false,
+        message: "Lead status updated successfully",
+        data: lead
+      });
+    } catch (error) {
+      console.error("updateLeadStatus error:", error);
+      return res.status(500).json({
+        error: true,
+        message: "Internal server error",
+        data: error
+      });
+    }
+  };
+  
 // Create Agent
 exports.createAgent = async (req, res) => {
     console.log("/createAgent API called");
@@ -2627,6 +2663,38 @@ exports.loginAgent = async (req, res) => {
     }
   };
 
+//    assign Lead TO Agnet
+
+  exports.assignLead = async (req, res) => {
+    console.log("/assignLead API called");
+    const { lead_id, agent_id, super_agent_id } = req.body;
+  
+    if (!lead_id || !agent_id || !super_agent_id) {
+      return res.status(400).json({ error: true, message: "Missing required fields" });
+    }
+  
+    try {
+      const updated = await Lead.findByIdAndUpdate(lead_id, {
+        assigned_to: agent_id,
+        assigned_by: super_agent_id,
+        assignment_date: new Date()
+      }, { new: true });
+  
+      if (!updated) {
+        return res.status(404).json({ error: true, message: "Lead not found" });
+      }
+  
+      res.status(200).json({
+        error: false,
+        message: "Lead assigned successfully",
+        data: updated
+      });
+    } catch (err) {
+      console.error("Error in assignLead:", err);
+      res.status(500).json({ error: true, message: "Something went wrong", data: err });
+    }
+  };
+  
 
 
 

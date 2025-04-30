@@ -184,7 +184,9 @@ app.post("/updateAgent", handler.upload, controller.updateAgent);
 app.post("/getAllAgents", controller.getAllAgents);
 app.post("/getAgentById", controller.getAgentById);
 app.post("/deleteAgent", controller.deleteAgent);
-app.post("/loginAgent",controller.loginAgent)
+app.post("/loginAgent",controller.loginAgent);
+app.post("/updateLeadStatus",controller.updateLeadStatus);
+app.post("/assignLead",controller.assignLead);
 app.post("/deleteImage", controller.deleteImage);
 app.post("/deleteItineraryImage",controller.deleteItineraryImage);
 

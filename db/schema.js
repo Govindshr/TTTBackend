@@ -325,7 +325,7 @@ const leadSchema = new mongoose.Schema({
     },
     lead_status: {
         type: String,
-        enum: ['new', 'in-progress', 'converted', 'closed'],
+        enum: ['new', 'contacted','in-progress', 'converted', 'failed'],
         default: 'new'
     },
     priority: {
@@ -337,7 +337,25 @@ const leadSchema = new mongoose.Schema({
         type: String,
         default: '', // Required if lead_type is 'destination'
     },
-    itinerary_details: {
+    assigned_to: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Agent',
+        default: null
+      },
+      assigned_by: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Agent',
+        default: null
+      },
+      assignment_date: {
+        type: Date,
+        default: null
+      },
+      updatedBy: {
+        id: { type: mongoose.Schema.Types.ObjectId, ref: 'Agent', default: null },
+        name: { type: String, default: null }
+      },      
+      itinerary_details: {
         type: String,
         default: '', // Required if lead_type is 'itinerary'
     }
