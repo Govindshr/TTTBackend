@@ -666,25 +666,35 @@ exports.viewDestinationById = async (req, res) => {
 
 exports.getAllDestinations = async (req, res) => {
     console.log("/getAllDestinations API called");
-
+  
+    const { search } = req.body; // Get 'search' from body
+  
     try {
-        const destinations = await Destination.find({}, "_id destination_name cover_image");
-        res.status(200).json({
-            error: false,
-            code: 200,
-            message: "All destinations",
-            data: destinations
-        });
+      const query = {};
+  
+      if (search) {
+        query.destination_name = { $regex: search, $options: "i" }; // Case-insensitive match
+      }
+  
+      const destinations = await Destination.find(query, "_id destination_name cover_image");
+  
+      res.status(200).json({
+        error: false,
+        code: 200,
+        message: "Filtered destinations",
+        data: destinations,
+      });
     } catch (error) {
-        console.error("Catch Error:", error);
-        res.status(400).json({
-            error: true,
-            code: 400,
-            message: "Something went wrong",
-            data: error
-        });
+      console.error("Catch Error:", error);
+      res.status(400).json({
+        error: true,
+        code: 400,
+        message: "Something went wrong",
+        data: error,
+      });
     }
-};
+  };
+  
 
 exports.updateDestinationStatus = async (req, res) => {
     console.log("/updateDestinationStatus API called");
