@@ -12,10 +12,10 @@ const secretKey = 'kms-ak-node';
 const handler = require('./api.handler')
 
 const { Question,  Registration, Destination, Itinerary, DestinationWithType, 
-    ItinerariesWithType, HolidaysByTheme, Testimonial, Partner, Vendor, Lead, Agent
+    ItinerariesWithType, HolidaysByTheme, Testimonial, Partner, Vendor, Lead, Agent,JourneysInFrame
 
 } = require("./db/schema");
-const { Mongoose } = require("mongoose");
+const { Mongoose, default: mongoose } = require("mongoose");
 
 
 
@@ -749,6 +749,126 @@ exports.getDestinationsNamesAndIds = async (req, res) => {
             error: true,
             code: 400,
             message: "Something went wrong",
+            data: error
+        });
+    }
+};
+
+/************************  JourneysInFrame API ************************* */
+
+// Save Itinerary
+exports.saveJourneysInFrame = async (req, res) => {
+    console.log("/JourneysInFrame API called");
+
+    let data = req.body;
+    let savedJourneysInFrame;
+
+    try {
+        // Extract values from the request body
+        let destination = data.destination || ""; // Should be selected from the dropdown
+     
+        // Handle file uploads
+        let images = req.files?.filter(file => file.fieldname === "images").map(file => file.path) || [];
+
+        // Prepare data for saving
+        let saveData = {
+            destination,
+            images,
+        };
+
+        // Save the data to the database
+        savedJourneysInFrame = await JourneysInFrame.create(saveData);
+
+        // Respond with success
+        res.status(200).json({
+            error: false,
+            code: 200,
+            message: "Data saved successfully",
+            data: savedJourneysInFrame
+        });
+    } catch (error) {
+        console.error("Catch Error:", error);
+        res.status(400).json({
+            error: true,
+            code: 400,
+            message: "Something went wrong",
+            data: error
+        });
+    }
+};
+
+
+// GET /getAllJourneyImages
+exports.getAllJourneyImages = async (req, res) => {
+    console.log("/getAllJourneyImages API called");
+
+    try {
+        // Fetch all active & non-deleted entries
+        const frames = await JourneysInFrame.find({
+            status: 1,
+            is_deleted: 0
+        }).select("images");
+
+        // Extract all images into a flat array
+        const allImages = frames.flatMap(doc => doc.images);
+
+        res.status(200).json({
+            error: false,
+            code: 200,
+            message: "All images fetched successfully",
+            images: allImages
+        });
+    } catch (error) {
+        console.error("Error in getAllJourneyImages:", error);
+        res.status(500).json({
+            error: true,
+            code: 500,
+            message: "Internal server error",
+            data: error
+        });
+    }
+};
+
+exports.getJourneyByDestinationId = async (req, res) => {
+    console.log("/getJourneyByDestinationId API called");
+
+    const { destination } = req.body;
+
+    if (!destination || !mongoose.Types.ObjectId.isValid(destination)) {
+        return res.status(400).json({
+            error: true,
+            code: 400,
+            message: "Invalid or missing destination ID",
+        });
+    }
+
+    try {
+        const data = await JourneysInFrame.find({
+            destination: destination,
+            status: 1,
+            is_deleted: 0
+        });
+
+        if (data.length === 0) {
+            return res.status(404).json({
+                error: true,
+                code: 404,
+                message: "No data found for the given destination"
+            });
+        }
+
+        res.status(200).json({
+            error: false,
+            code: 200,
+            message: "Destination data fetched successfully",
+            data
+        });
+    } catch (error) {
+        console.error("Error in getJourneyByDestinationId:", error);
+        res.status(500).json({
+            error: true,
+            code: 500,
+            message: "Internal server error",
             data: error
         });
     }

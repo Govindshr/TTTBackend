@@ -114,6 +114,19 @@ const DestinationSchema = new mongoose.Schema({
 
 const Destination = mongoose.model('Destination', DestinationSchema);
 
+// JourneysInFrame Schema
+const JourneysInFrameSchema = new mongoose.Schema(
+    {
+        destination: { type: mongoose.Schema.Types.ObjectId }, // Reference to Destination
+        images: { type: [String], default: [] },
+        status: { type: Number, default: 1 },
+        is_deleted: { type: Number, default: 0 }
+    },
+    { timestamps: true } // Automatically adds createdAt and updatedAt
+);
+
+const JourneysInFrame = mongoose.model("JourneysInFrame", JourneysInFrameSchema);
+
 
 // Itinerary Schema
 const ItinerarySchema = new mongoose.Schema(
@@ -459,6 +472,7 @@ module.exports = {
     Vendor,
     Lead,
     Agent,
+    JourneysInFrame
 
 
 

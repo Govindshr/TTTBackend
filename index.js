@@ -117,7 +117,9 @@ app.post("/viewDestinationById", controller.viewDestinationById);
 app.post("/getAllDestinations", controller.getAllDestinations);
 app.post("/updateDestinationStatus", controller.updateDestinationStatus);
 app.post("/getDestinationsNamesAndIds", controller.getDestinationsNamesAndIds);
-
+app.post("/saveJourneysInFrame", handler.upload, controller.saveJourneysInFrame);
+app.post("/getAllJourneyImages",controller.getAllJourneyImages)
+app.post("/getJourneyByDestinationId",controller.getJourneyByDestinationId)
 // Itinerary
 app.post("/saveItinerary", handler.upload, controller.saveItinerary);
 app.post("/editItinerary", handler.upload, controller.editItinerary);
