@@ -12,7 +12,7 @@ const secretKey = 'kms-ak-node';
 const handler = require('./api.handler')
 
 const { Question,  Registration, Destination, Itinerary, DestinationWithType, 
-    ItinerariesWithType, HolidaysByTheme, Testimonial, Partner, Vendor, Lead, Agent,JourneysInFrame
+    ItinerariesWithType, HolidaysByTheme, Testimonial, Partner, Vendor, Lead, Agent,JourneysInFrame,Terms,Privacy
 
 } = require("./db/schema");
 const { Mongoose, default: mongoose } = require("mongoose");
@@ -2960,7 +2960,251 @@ exports.deleteItineraryImage = async (req, res) => {
     }
 };
 
+// Save Testimonial API
+exports.saveTerms = async (req, res) => {
+    console.log("/saveTerms API called");
 
+    let data = req.body;
+    let savedTerms;
+
+    try {
+        // Extract values from the request body
+        let terms_conditions = data.terms_conditions || "";
+        
+
+     
+
+       // Prepare data for saving
+        let saveData = {
+            terms_conditions,
+            
+        };
+
+        // Save the data to the database
+        savedTerms = await Terms.create(saveData);
+
+        // Respond with success
+        res.status(200).json({
+            error: false,
+            code: 200,
+            message: "Terms Saved Successfully",
+            data: savedTerms
+        });
+    } catch (error) {
+        console.error("Catch Error:", error);
+        res.status(400).json({
+            error: true,
+            code: 400,
+            message: "Something went wrong",
+            data: error
+        });
+    }
+};
+
+// Edit Terms API
+exports.updateTerms = async (req, res) => {
+    console.log("/updateTerms API called");
+
+    const { id, terms_conditions } = req.body;
+console.log("Request Body:", req.body);
+
+    if (!id) {
+        return res.status(400).json({
+            error: true,
+            code: 400,
+            message: "Missing 'id' in request body",
+            data: null
+        });
+    }
+
+    try {
+        const updateFields = {};
+        if (typeof terms_conditions === 'string') updateFields.terms_conditions = terms_conditions;
+        updateFields.updated_at = new Date();
+
+        const updatedTerms = await Terms.findByIdAndUpdate(
+            id,
+            { $set: updateFields },
+            { new: true }
+        );
+
+        if (!updatedTerms) {
+            return res.status(404).json({
+                error: true,
+                code: 404,
+                message: "Terms not found",
+                data: null
+            });
+        }
+
+        res.status(200).json({
+            error: false,
+            code: 200,
+            message: "Terms updated successfully",
+            data: updatedTerms
+        });
+    } catch (error) {
+        console.error("Catch Error:", error);
+        res.status(500).json({
+            error: true,
+            code: 500,
+            message: "Server error during update",
+            data: error
+        });
+    }
+};
+
+
+// Get Terms by ID API
+exports.getTermsById = async (req, res) => {
+    console.log("/getTermsById API called");
+
+    let { id } = req.body;
+
+    try {
+        let terms = await Terms.findOne({ _id: id, });
+
+        if (!terms) {
+            return res.status(404).json({ error: true, message: "Terms not found" });
+        }
+
+        res.status(200).json({
+            error: false,
+            message: "Terms retrieved successfully",
+            data: terms
+        });
+    } catch (error) {
+        console.error("Catch Error:", error);
+        res.status(500).json({
+            error: true,
+            message: "Something went wrong",
+            data: error
+        });
+    }
+};
+
+// Save Testimonial API
+exports.savePrivacy = async (req, res) => {
+    console.log("/savePrivacy API called");
+
+    let data = req.body;
+    let savedPrivacy;
+
+    try {
+        // Extract values from the request body
+        let privacy_policy = data.privacy_policy || "";
+        
+
+     
+
+       // Prepare data for saving
+        let saveData = {
+            privacy_policy,
+            
+        };
+
+        // Save the data to the database
+        savedPrivacy = await Privacy.create(saveData);
+
+        // Respond with success
+        res.status(200).json({
+            error: false,
+            code: 200,
+            message: "Privacy Policy Saved Successfully",
+            data: savedPrivacy
+        });
+    } catch (error) {
+        console.error("Catch Error:", error);
+        res.status(400).json({
+            error: true,
+            code: 400,
+            message: "Something went wrong",
+            data: error
+        });
+    }
+};
+
+// Edit Terms API
+exports.updatePrivacy = async (req, res) => {
+    console.log("/updatePrivacy API called");
+
+    const { id, privacy_policy } = req.body;
+console.log("Request Body:", req.body);
+
+    if (!id) {
+        return res.status(400).json({
+            error: true,
+            code: 400,
+            message: "Missing 'id' in request body",
+            data: null
+        });
+    }
+
+    try {
+        const updateFields = {};
+        if (typeof privacy_policy === 'string') updateFields.privacy_policy = privacy_policy;
+        updateFields.updated_at = new Date();
+
+        const updatedPrivacy = await Privacy.findByIdAndUpdate(
+            id,
+            { $set: updateFields },
+            { new: true }
+        );
+
+        if (!updatedPrivacy) {
+            return res.status(404).json({
+                error: true,
+                code: 404,
+                message: "Privacy not found",
+                data: null
+            });
+        }
+
+        res.status(200).json({
+            error: false,
+            code: 200,
+            message: "Privacy updated successfully",
+            data: updatedPrivacy
+        });
+    } catch (error) {
+        console.error("Catch Error:", error);
+        res.status(500).json({
+            error: true,
+            code: 500,
+            message: "Server error during update",
+            data: error
+        });
+    }
+};
+
+
+// Get Terms by ID API
+exports.getPrivacyById = async (req, res) => {
+    console.log("/getPrivacyById API called");
+
+    let { id } = req.body;
+
+    try {
+        let privacy = await Privacy.findOne({ _id: id, });
+
+        if (!privacy) {
+            return res.status(404).json({ error: true, message: "Privacy not found" });
+        }
+
+        res.status(200).json({
+            error: false,
+            message: "Privacy retrieved successfully",
+            data: privacy
+        });
+    } catch (error) {
+        console.error("Catch Error:", error);
+        res.status(500).json({
+            error: true,
+            message: "Something went wrong",
+            data: error
+        });
+    }
+};
 
 /************************ Delete Qestions and Options bye Scene Id of KMS **************** */
 // exports.deleteSceine = async (req, res) => {

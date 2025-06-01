@@ -193,8 +193,16 @@ app.post("/deleteImage", controller.deleteImage);
 app.post("/deleteItineraryImage",controller.deleteItineraryImage);
 
 
+// Terms 
+app.post("/saveTerms",controller.saveTerms);
+app.post("/updateTerms",controller.updateTerms);
+app.post("/getTermsById",controller.getTermsById);
 
 
+// Privacy
+app.post("/savePrivacy",controller.savePrivacy);
+app.post("/updatePrivacy",controller.updatePrivacy);
+app.post("/getPrivacyById",controller.getPrivacyById);
 
 
 

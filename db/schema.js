@@ -453,6 +453,53 @@ const agentSchema = new mongoose.Schema({
 
 const Agent = mongoose.model("Agent", agentSchema);
 
+// Testimonial Schema Definition
+const TermsSchema = new mongoose.Schema(
+  {
+    terms_conditions: {
+      type: String,
+      required: false, // 'name' is a required field
+    },
+     created_at: {
+        type: Date,
+        default: Date.now
+    },
+    updated_at: {
+        type: Date,
+        default: Date.now
+    }
+   
+  },
+  { timestamps: true } // Automatically adds 'createdAt' and 'updatedAt' timestamps
+);
+
+// Create and export the Testimonial model
+const Terms = mongoose.model('Terms', TermsSchema);
+
+
+// Privacy Schema Definition
+const PrivacySchema = new mongoose.Schema(
+  {
+    privacy_policy: {
+      type: String,
+      required: false, // 'name' is a required field
+    },
+     created_at: {
+        type: Date,
+        default: Date.now
+    },
+    updated_at: {
+        type: Date,
+        default: Date.now
+    }
+   
+  },
+  { timestamps: true } // Automatically adds 'createdAt' and 'updatedAt' timestamps
+);
+
+// Create and export the Testimonial model
+const Privacy = mongoose.model('Privacy', PrivacySchema);
+
 
 
 
@@ -472,7 +519,9 @@ module.exports = {
     Vendor,
     Lead,
     Agent,
-    JourneysInFrame
+    JourneysInFrame,
+    Terms,
+    Privacy
 
 
 
