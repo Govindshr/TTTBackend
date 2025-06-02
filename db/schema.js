@@ -497,8 +497,29 @@ const PrivacySchema = new mongoose.Schema(
   { timestamps: true } // Automatically adds 'createdAt' and 'updatedAt' timestamps
 );
 
-// Create and export the Testimonial model
 const Privacy = mongoose.model('Privacy', PrivacySchema);
+
+// Privacy Schema Definition
+const CopyRightSchema = new mongoose.Schema(
+  {
+    copyright_policy: {
+      type: String,
+      required: false, // 'name' is a required field
+    },
+     created_at: {
+        type: Date,
+        default: Date.now
+    },
+    updated_at: {
+        type: Date,
+        default: Date.now
+    }
+   
+  },
+  { timestamps: true } // Automatically adds 'createdAt' and 'updatedAt' timestamps
+);
+// Create and export the Testimonial model
+const Copyright = mongoose.model('Copyright', CopyRightSchema);
 
 
 
@@ -521,7 +542,8 @@ module.exports = {
     Agent,
     JourneysInFrame,
     Terms,
-    Privacy
+    Privacy,
+    Copyright
 
 
 

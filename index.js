@@ -203,6 +203,10 @@ app.post("/getTermsById",controller.getTermsById);
 app.post("/savePrivacy",controller.savePrivacy);
 app.post("/updatePrivacy",controller.updatePrivacy);
 app.post("/getPrivacyById",controller.getPrivacyById);
+// Privacy
+app.post("/saveCopyright",controller.saveCopyright);
+app.post("/updateCopyright",controller.updateCopyright);
+app.post("/getCopyrightById",controller.getCopyrightById);
 
 
 

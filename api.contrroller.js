@@ -12,7 +12,7 @@ const secretKey = 'kms-ak-node';
 const handler = require('./api.handler')
 
 const { Question,  Registration, Destination, Itinerary, DestinationWithType, 
-    ItinerariesWithType, HolidaysByTheme, Testimonial, Partner, Vendor, Lead, Agent,JourneysInFrame,Terms,Privacy
+    ItinerariesWithType, HolidaysByTheme, Testimonial, Partner, Vendor, Lead, Agent,JourneysInFrame,Terms,Privacy,Copyright
 
 } = require("./db/schema");
 const { Mongoose, default: mongoose } = require("mongoose");
@@ -3083,7 +3083,7 @@ exports.getTermsById = async (req, res) => {
     }
 };
 
-// Save Testimonial API
+// Save Terms API
 exports.savePrivacy = async (req, res) => {
     console.log("/savePrivacy API called");
 
@@ -3195,6 +3195,130 @@ exports.getPrivacyById = async (req, res) => {
             error: false,
             message: "Privacy retrieved successfully",
             data: privacy
+        });
+    } catch (error) {
+        console.error("Catch Error:", error);
+        res.status(500).json({
+            error: true,
+            message: "Something went wrong",
+            data: error
+        });
+    }
+};
+
+
+// Save Copyright API
+exports.saveCopyright = async (req, res) => {
+    console.log("/saveCopyright API called");
+
+    let data = req.body;
+    let savedCopyright;
+
+    try {
+        // Extract values from the request body
+        let copyright_policy = data.copyright_policy || "";
+        
+
+     
+
+       // Prepare data for saving
+        let saveData = {
+            copyright_policy,
+            
+        };
+
+        // Save the data to the database
+        savedCopyright = await Copyright.create(saveData);
+
+        // Respond with success
+        res.status(200).json({
+            error: false,
+            code: 200,
+            message: "Copy Right Policy Saved Successfully",
+            data: savedCopyright
+        });
+    } catch (error) {
+        console.error("Catch Error:", error);
+        res.status(400).json({
+            error: true,
+            code: 400,
+            message: "Something went wrong",
+            data: error
+        });
+    }
+};
+
+// Edit Copy Right  API
+exports.updateCopyright = async (req, res) => {
+    console.log("/updateCopyright API called");
+
+    const { id, copyright_policy } = req.body;
+console.log("Request Body:", req.body);
+
+    if (!id) {
+        return res.status(400).json({
+            error: true,
+            code: 400,
+            message: "Missing 'id' in request body",
+            data: null
+        });
+    }
+
+    try {
+        const updateFields = {};
+        if (typeof copyright_policy === 'string') updateFields.copyright_policy = copyright_policy;
+        updateFields.updated_at = new Date();
+
+        const updatedCopyright = await Copyright.findByIdAndUpdate(
+            id,
+            { $set: updateFields },
+            { new: true }
+        );
+
+        if (!updatedCopyright) {
+            return res.status(404).json({
+                error: true,
+                code: 404,
+                message: "Copy Right not found",
+                data: null
+            });
+        }
+
+        res.status(200).json({
+            error: false,
+            code: 200,
+            message: "Copy Right updated successfully",
+            data: updatedCopyright
+        });
+    } catch (error) {
+        console.error("Catch Error:", error);
+        res.status(500).json({
+            error: true,
+            code: 500,
+            message: "Server error during update",
+            data: error
+        });
+    }
+};
+
+
+// Get Copy Right by ID API
+exports.getCopyrightById = async (req, res) => {
+    console.log("/getCopyrightById API called");
+
+    let { id } = req.body;
+
+    try {
+        let copyright = await Copyright.findOne({ _id: id, });
+
+        if (!copyright) {
+            return res.status(404).json({ error: true, message: "Copy Right not found" });
+        }
+
+        res.status(200).json({
+            error: false,
+            message: "Copy Right retrieved successfully",
+            data: copyright
         });
     } catch (error) {
         console.error("Catch Error:", error);
