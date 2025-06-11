@@ -120,6 +120,7 @@ app.post("/getDestinationsNamesAndIds", controller.getDestinationsNamesAndIds);
 app.post("/saveJourneysInFrame", handler.upload, controller.saveJourneysInFrame);
 app.post("/getAllJourneyImages",controller.getAllJourneyImages)
 app.post("/getJourneyByDestinationId",controller.getJourneyByDestinationId)
+app.post('/deleteSingleJourneyImage',controller.deleteSingleJourneyImage)
 // Itinerary
 app.post("/saveItinerary", handler.upload, controller.saveItinerary);
 app.post("/editItinerary", handler.upload, controller.editItinerary);

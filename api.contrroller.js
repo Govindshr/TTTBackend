@@ -874,6 +874,42 @@ exports.getJourneyByDestinationId = async (req, res) => {
     }
 };
 
+// DELETE /deleteJourneyById
+exports.deleteJourneyById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const deleted = await JourneysInFrame.findByIdAndUpdate(id, {
+            is_deleted: 1
+        });
+        res.status(200).json({ code: 200, message: "Deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ code: 500, message: "Failed to delete", error: err });
+    }
+};
+
+exports.deleteSingleJourneyImage = async (req, res) => {
+  const { imagePath } = req.body;
+  try {
+    const update = await JourneysInFrame.updateMany(
+      { images: imagePath },
+      { $pull: { images: imagePath } }
+    );
+    res.status(200).json({
+      error: false,
+      code: 200,
+      message: "Image deleted successfully",
+      result: update,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: true,
+      code: 500,
+      message: "Error deleting image",
+      data: error,
+    });
+  }
+};
+
 /************************  Itinerary API ************************* */
 
 // Save Itinerary
